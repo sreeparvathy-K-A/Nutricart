@@ -1,0 +1,270 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import OwnerSidebar from "../components/OwnerSidebar";
+import "../CSS-pages/OwnerDashboard.css";
+import "../CSS-pages/AddFood.css";
+
+const initialFormState = {
+  name: "",
+  description: "",
+  price: "",
+  category: "",
+  calories: "",
+  protein: "",
+  rating: "",
+};
+
+const AddFood = () => {
+  const [formData, setFormData] = useState(initialFormState);
+  const [image, setImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const storedUser = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const ownerName = storedUser?.name || "Owner";
+  const hotelName =
+    storedUser?.hotel ||
+    storedUser?.businessName ||
+    storedUser?.name ||
+    "Owner";
+  const ownerLocation =
+    storedUser?.address ||
+    [storedUser?.city, storedUser?.state, storedUser?.pincode].filter(Boolean).join(", ");
+  const ownerId = storedUser?.id || "";
+  const ownerEmail = storedUser?.email || "";
+
+  useEffect(() => {
+    if (!image) {
+      setImagePreview("");
+      return undefined;
+    }
+
+    const previewUrl = URL.createObjectURL(image);
+    setImagePreview(previewUrl);
+
+    return () => {
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [image]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const selectedFile = e.target.files?.[0] || null;
+    setImage(selectedFile);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Login required");
+      return;
+    }
+
+    if (!image) {
+      alert("Select an image");
+      return;
+    }
+
+    const data = new FormData();
+
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
+
+    data.append("ownerId", ownerId);
+    data.append("ownerEmail", ownerEmail);
+    data.append("hotelName", hotelName);
+    data.append("location", ownerLocation);
+    data.append("image", image);
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await axios.post("http://localhost:5000/api/foods/add", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert(response.data?.message || "Food added successfully");
+      setFormData(initialFormState);
+      setImage(null);
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Error adding food");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="owner-dashboard add-food-page">
+      <OwnerSidebar />
+
+      <main className="owner-main add-food-main">
+      <section className="add-food-hero">
+        <div className="add-food-hero-copy">
+          <p className="add-food-kicker">Owner tools</p>
+          <h1>Add a new food item</h1>
+          <p>
+            Build your menu with better presentation, clean nutrition details,
+            and a photo customers will notice.
+          </p>
+        </div>
+
+        <div className="add-food-owner-card">
+          <span>Publishing as</span>
+          <strong>{hotelName}</strong>
+          <p>{ownerLocation || "Add your address in owner profile to show menu location."}</p>
+        </div>
+      </section>
+
+      <div className="add-food-layout">
+        <form className="add-food-form" onSubmit={handleSubmit}>
+          <div className="form-header">
+            <div>
+              <p className="add-food-kicker">Food details</p>
+              <h2>Create menu item</h2>
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <label className="field field-wide">
+              <span>Food name</span>
+              <input
+                name="name"
+                value={formData.name}
+                placeholder="Paneer Power Bowl"
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label className="field field-wide">
+              <span>Description</span>
+              <textarea
+                name="description"
+                value={formData.description}
+                placeholder="A short, appetizing description for customers"
+                onChange={handleChange}
+                rows="4"
+              />
+            </label>
+
+            <label className="field">
+              <span>Price</span>
+              <input
+                name="price"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.price}
+                placeholder="199"
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label className="field">
+              <span>Category</span>
+              <input
+                name="category"
+                value={formData.category}
+                placeholder="Healthy meal"
+                onChange={handleChange}
+              />
+            </label>
+
+            <label className="field">
+              <span>Calories</span>
+              <input
+                name="calories"
+                type="number"
+                min="0"
+                value={formData.calories}
+                placeholder="350"
+                onChange={handleChange}
+              />
+            </label>
+
+            <label className="field">
+              <span>Protein</span>
+              <input
+                name="protein"
+                type="number"
+                min="0"
+                value={formData.protein}
+                placeholder="22"
+                onChange={handleChange}
+              />
+            </label>
+
+            <label className="field">
+              <span>Rating</span>
+              <input
+                name="rating"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                value={formData.rating}
+                placeholder="4.5"
+                onChange={handleChange}
+              />
+            </label>
+          </div>
+
+          <label className="upload-box">
+            <span className="upload-label">Food image</span>
+            <input type="file" accept="image/*" onChange={handleImageChange} required />
+            <strong>{image ? image.name : "Choose an image to upload"}</strong>
+            <p>Use a clear food photo for a better menu listing.</p>
+          </label>
+
+          <button className="submit-food-button" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Add Food"}
+          </button>
+        </form>
+
+        <aside className="add-food-preview">
+          <p className="add-food-kicker">Preview</p>
+          <div className="preview-card">
+            <div
+              className="preview-image"
+              style={
+                imagePreview
+                  ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.08)), url(${imagePreview})` }
+                  : undefined
+              }
+            >
+              {!imagePreview && <span>Image preview</span>}
+            </div>
+
+            <div className="preview-body">
+              <div className="preview-price">Rs. {formData.price || "--"}</div>
+              <h3>{formData.name || "Your food name"}</h3>
+              <p>{formData.description || "Your menu description will appear here."}</p>
+
+              <div className="preview-meta">
+                <span>{formData.category || "Category"}</span>
+                <span>{formData.calories || "--"} kcal</span>
+                <span>{formData.protein || "--"} g protein</span>
+                <span>{formData.rating || "--"} rating</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+      </main>
+    </div>
+  );
+};
+
+export default AddFood;

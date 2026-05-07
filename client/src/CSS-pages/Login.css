@@ -1,0 +1,235 @@
+.auth-page {
+  position: relative;
+  min-height: calc(100vh - 72px);
+  margin-top: 72px;
+  padding: 12px 16px;
+  background:
+    radial-gradient(circle at top left, rgba(105, 186, 143, 0.2), transparent 28%),
+    linear-gradient(135deg, #eef8f1 0%, #dcefe4 52%, #f6fbf7 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.auth-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+}
+
+.auth-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 1fr);
+  gap: 0;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 22px 60px rgba(8, 25, 20, 0.18);
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+}
+
+.auth-showcase {
+  position: relative;
+  padding: 26px 28px;
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #f4fff7;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.auth-showcase::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(155deg, rgba(9, 73, 58, 0.82), rgba(11, 35, 30, 0.58));
+}
+
+.auth-showcase::after {
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  top: -35px;
+  right: -30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.auth-kicker,
+.auth-eyebrow,
+.auth-showcase h1,
+.auth-copy,
+.auth-stat-row,
+.auth-note-card {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-kicker,
+.auth-eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b8f0c8;
+}
+
+.auth-showcase h1,
+.auth-card h2 {
+  margin: 0;
+  line-height: 1.05;
+}
+
+.auth-showcase h1 {
+  font-size: clamp(1.75rem, 2.8vw, 2.9rem);
+  max-width: 11ch;
+}
+
+.auth-copy {
+  margin: 12px 0 0;
+  max-width: 31ch;
+  color: rgba(244, 255, 247, 0.84);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.auth-card {
+  width: 100%;
+  padding: 26px 28px;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-card-head {
+  margin-bottom: 14px;
+}
+
+.auth-card-head h2 {
+  font-size: 1.62rem;
+  color: #143933;
+}
+
+.auth-card-head span {
+  display: block;
+  margin-top: 6px;
+  color: #60726c;
+  font-size: 0.86rem;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.auth-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #24463e;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid rgba(21, 80, 63, 0.14);
+  border-radius: 14px;
+  background: rgba(248, 251, 249, 0.98);
+  font-size: 0.89rem;
+  color: #173a34;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.auth-field input:focus {
+  border-color: #2d8f6d;
+  box-shadow: 0 0 0 4px rgba(45, 143, 109, 0.12);
+  transform: translateY(-1px);
+}
+
+.auth-primary-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0d7758, #2cab72);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.auth-primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(12, 122, 90, 0.18);
+}
+
+.auth-primary-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.auth-footer-links {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #61756e;
+  font-size: 0.82rem;
+}
+
+.auth-footer-links a {
+  color: #137f5f;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.auth-footer-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .auth-page {
+    display: block;
+  }
+
+  .auth-shell {
+    grid-template-columns: 1fr;
+    border-radius: 24px;
+  }
+
+  .auth-showcase,
+  .auth-card {
+    min-height: auto;
+    padding: 22px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-page {
+    padding: 10px 12px 18px;
+  }
+
+  .auth-shell {
+    border-radius: 20px;
+  }
+
+  .auth-footer-links {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

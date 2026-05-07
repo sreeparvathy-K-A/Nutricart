@@ -1,0 +1,78 @@
+.profile-page {
+  background:
+    radial-gradient(circle at top left, rgba(241, 187, 84, 0.16), transparent 24%),
+    linear-gradient(135deg, #f7f2e8 0%, #edf3ec 100%);
+}
+
+.profile-main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 36px;
+}
+
+.profile-card {
+  width: min(100%, 460px);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 28px;
+  border-radius: 24px;
+  box-shadow: 0 16px 38px rgba(28, 67, 51, 0.08);
+}
+
+.profile-card h2 {
+  margin: 0 0 18px;
+  color: #1d3d31;
+}
+
+.profile-card input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #d8e3da;
+  border-radius: 14px;
+  outline: none;
+  font: inherit;
+  color: #1f342b;
+  background: #fcfdfb;
+}
+
+.profile-card input:focus {
+  border-color: #d87849;
+  box-shadow: 0 0 0 4px rgba(216, 120, 73, 0.12);
+}
+
+.profile-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.profile-card button:first-of-type {
+  background: #1f5a45;
+  color: #fff;
+}
+
+.save {
+  background: #1f5a45;
+  color: #fff;
+}
+
+.cancel {
+  background: #e9efea;
+  color: #2b4b3f;
+}
+
+@media (max-width: 640px) {
+  .profile-main {
+    padding: 18px;
+  }
+
+  .profile-card {
+    padding: 20px;
+  }
+}
