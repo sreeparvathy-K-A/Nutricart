@@ -27,7 +27,7 @@ function OwnerDashboard() {
     const stored = localStorage.getItem("userInfo");
 
     if (!stored) {
-      navigate("/login");
+      navigate("/restaurant/login");
       return;
     }
 
@@ -35,12 +35,12 @@ function OwnerDashboard() {
       const user = JSON.parse(stored);
 
       if (!user || user.role !== "owner") {
-        navigate("/login");
+        navigate("/restaurant/login");
       }
     } catch (err) {
       console.error("Error parsing user:", err);
       localStorage.removeItem("userInfo");
-      navigate("/login");
+      navigate("/restaurant/login");
     }
   }, [navigate]);
 

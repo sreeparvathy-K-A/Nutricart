@@ -38,7 +38,7 @@ function AdminDashboard() {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/admin/login");
   };
 
   const openTab = (tab) => {
@@ -50,11 +50,11 @@ function AdminDashboard() {
     try {
       const storedUser = JSON.parse(localStorage.getItem("userInfo") || "null");
       if (!storedUser || storedUser.role !== "admin") {
-        navigate("/login");
+        navigate("/admin/login");
       }
     } catch {
       localStorage.removeItem("userInfo");
-      navigate("/login");
+      navigate("/admin/login");
     }
   }, [navigate]);
 
@@ -305,11 +305,16 @@ function AdminDashboard() {
   );
 
   const renderOrders = () => (
-      <div className="table-container">
-      <h2>ORDER MANAGEMENT</h2>
-      <p className="admin-section-note">
-        Showing only orders waiting for delivery assignment. Assigned orders move to the delivery dashboard.
-      </p>
+    <div className="table-container order-management-box">
+      <div className="order-management-head">
+        <div>
+          <h2>ORDER MANAGEMENT</h2>
+          <p className="admin-section-note">
+            Showing only orders waiting for delivery assignment. Assigned orders move to the delivery dashboard.
+          </p>
+        </div>
+        <span>{data.length} pending</span>
+      </div>
 
       <div className="order-admin-list">
         {data.length === 0 ? (
@@ -326,6 +331,7 @@ function AdminDashboard() {
               </div>
 
               <div className="order-admin-items">
+                <strong>Items</strong>
                 {(order.items || []).map((item, index) => (
                   <p key={`${order._id}-${index}`}>
                     {item.foodId?.name || "Food item"} x {item.quantity}
@@ -333,14 +339,24 @@ function AdminDashboard() {
                 ))}
               </div>
 
-              <p><b>Address:</b> {order.address || "Not provided"}</p>
-              <p><b>Total:</b> Rs. {order.totalAmount || 0}</p>
-              <p>
-                <b>Assigned Delivery:</b>{" "}
-                {order.deliveryBoyName || order.deliveryBoyId?.name || "Not assigned"}
-              </p>
+              <div className="order-admin-details">
+                <div>
+                  <span>Address</span>
+                  <strong>{order.address || "Not provided"}</strong>
+                </div>
+                <div>
+                  <span>Total Amount</span>
+                  <strong>Rs. {order.totalAmount || 0}</strong>
+                </div>
+                <div>
+                  <span>Assigned Delivery</span>
+                  <strong>{order.deliveryBoyName || order.deliveryBoyId?.name || "Not assigned"}</strong>
+                </div>
+              </div>
 
               <div className="order-admin-actions">
+                <div>
+                  <span>Assign Delivery Partner</span>
                 <select
                   value={assignments[order._id] || ""}
                   onChange={(e) =>
@@ -354,6 +370,7 @@ function AdminDashboard() {
                     </option>
                   ))}
                 </select>
+                </div>
                 <button
                   className="approve"
                   onClick={() => handleAssignDelivery(order._id)}

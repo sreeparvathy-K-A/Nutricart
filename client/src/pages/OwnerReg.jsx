@@ -127,7 +127,7 @@ function OwnerReg() {
         licenseImage: null,
       });
 
-      navigate("/login");
+      navigate("/restaurant/login");
     } catch (error) {
       console.error(error);
       alert("Server error");
@@ -172,6 +172,10 @@ function OwnerReg() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-grid">
+              <div className="owner-section-title full">
+                <span>Business Details</span>
+              </div>
+
               <div className="owner-field">
                 <label htmlFor="businessName">Hotel Name</label>
                 <input
@@ -250,6 +254,10 @@ function OwnerReg() {
                 />
               </div>
 
+              <div className="owner-section-title full">
+                <span>Location</span>
+              </div>
+
               <div className="owner-field full">
                 <label htmlFor="ownerStreet">Street Address</label>
                 <input
@@ -302,6 +310,10 @@ function OwnerReg() {
                 />
               </div>
 
+              <div className="owner-section-title full">
+                <span>Documents</span>
+              </div>
+
               <div className="owner-field full file-field">
                 <label htmlFor="ownerPhoto">Owner Photo</label>
                 <input id="ownerPhoto" type="file" name="ownerPhoto" onChange={handleFileChange} />
@@ -330,7 +342,7 @@ function OwnerReg() {
 
           <div className="ownerreg-footer">
             <span>Already have access?</span>
-            <Link to="/login">Login here</Link>
+            <Link to="/restaurant/login">Login here</Link>
           </div>
         </div>
       </div>

@@ -104,7 +104,7 @@ function MyFood() {
 
   useEffect(() => {
     if (!ownerName) {
-      navigate("/login");
+      navigate("/restaurant/login");
       return;
     }
 

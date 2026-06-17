@@ -26,6 +26,18 @@ const buildUserPayload = (user, role) => {
   };
 };
 
+const sendLoginResponse = (res, user, role) => {
+  const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+
+  return res.status(200).json({
+    message: "Login successful",
+    user: buildUserPayload(user, role),
+    token,
+  });
+};
+
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -170,20 +182,91 @@ export const loginUser = async (req, res) => {
       }
     }
 
-    const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    res.status(200).json({
-      message: "Login successful",
-      user: buildUserPayload(user, role),
-      token,
-    });
+    return sendLoginResponse(res, user, role);
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({
       message: error.message,
     });
+  }
+};
+
+export const loginClient = async (req, res) => {
+  try {
+    let { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please provide all fields" });
+    }
+
+    email = email.toLowerCase();
+    const client = await Client.findOne({ email });
+
+    if (!client) {
+      return res.status(400).json({ message: "Client account not found" });
+    }
+
+    const passwordLooksHashed =
+      typeof client.password === "string" && client.password.startsWith("$2");
+    const isMatch = passwordLooksHashed
+      ? await bcrypt.compare(password, client.password)
+      : client.password === password;
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    return sendLoginResponse(res, client, "client");
+  } catch (error) {
+    console.error("Client login error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const loginAdmin = async (req, res) => {
+  try {
+    let { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please provide all fields" });
+    }
+
+    email = email.trim().toLowerCase();
+    password = password.trim();
+    const envAdminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const envAdminPassword = process.env.ADMIN_PASSWORD;
+
+    if (envAdminEmail && envAdminPassword && email === envAdminEmail) {
+      if (password !== envAdminPassword) {
+        return res.status(400).json({ message: "Invalid password" });
+      }
+
+      return sendLoginResponse(
+        res,
+        {
+          _id: "env-admin",
+          name: "Admin",
+          email: envAdminEmail,
+          role: "admin",
+        },
+        "admin"
+      );
+    }
+
+    const admin = await userModel.findOne({ email, role: "admin" });
+    if (!admin) {
+      return res.status(400).json({ message: "Admin account not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    return sendLoginResponse(res, admin, "admin");
+  } catch (error) {
+    console.error("Admin login error:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
 

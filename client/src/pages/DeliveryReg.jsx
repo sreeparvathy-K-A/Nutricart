@@ -75,7 +75,7 @@ function DeliveryBoyReg() {
       });
       setPhoto(null);
       setErrors({});
-      navigate("/login");
+      navigate("/delivery/login");
     } catch (err) {
       console.error("Delivery registration error:", err);
       alert("Server error");
@@ -119,6 +119,10 @@ function DeliveryBoyReg() {
           </div>
 
           <div className="delivery-grid">
+            <div className="delivery-section-title span-2">
+              <span>Partner Details</span>
+            </div>
+
             <div className="delivery-field">
               <label htmlFor="delivery-name">Full Name</label>
               <input
@@ -182,6 +186,10 @@ function DeliveryBoyReg() {
               {errors.address && <p className="error">{errors.address}</p>}
             </div>
 
+            <div className="delivery-section-title span-2">
+              <span>Vehicle Details</span>
+            </div>
+
             <div className="delivery-field">
               <label htmlFor="vehicleType">Vehicle Type</label>
               <select id="vehicleType" name="vehicleType" value={form.vehicleType} onChange={handleChange}>
@@ -229,7 +237,7 @@ function DeliveryBoyReg() {
 
           <div className="deliveryreg-footer">
             <span>Already have access?</span>
-            <Link to="/login">Login here</Link>
+            <Link to="/delivery/login">Login here</Link>
           </div>
         </form>
       </div>

@@ -552,3 +552,60 @@
     flex-direction: column;
   }
 }
+
+/* Dedicated admin login polish */
+.admin-auth-page {
+  background-color: #08120f;
+}
+
+.admin-auth-overlay {
+  background:
+    linear-gradient(135deg, rgba(4, 12, 10, 0.92), rgba(12, 31, 27, 0.9)),
+    radial-gradient(circle at 82% 12%, rgba(46, 204, 113, 0.24), transparent 30%);
+}
+
+.admin-auth-shell {
+  width: min(940px, 100%);
+  grid-template-columns: minmax(300px, 1fr) minmax(340px, 400px);
+  align-items: stretch;
+}
+
+.admin-auth-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(155deg, rgba(8, 37, 31, 0.96), rgba(10, 18, 26, 0.94)),
+    rgba(8, 37, 31, 0.96);
+}
+
+.admin-auth-panel::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -58px;
+  top: -58px;
+  border-radius: 50%;
+  background: rgba(142, 224, 168, 0.1);
+}
+
+.admin-auth-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-auth-card {
+  background: #ffffff;
+}
+
+.admin-auth-head h2 {
+  color: #0d1f1a;
+}
+
+.admin-auth-field input {
+  background: #f6faf8;
+}
+
+.admin-auth-btn {
+  background: linear-gradient(135deg, #0b1f1a, #15986f);
+}

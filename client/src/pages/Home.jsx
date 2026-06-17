@@ -68,7 +68,7 @@ function Home() {
               <button type="button" onClick={() => navigate("/menu")}>
                 Explore Menu
               </button>
-              <button type="button" className="hero-secondary" onClick={() => navigate("/register-owner")}>
+              <button type="button" className="hero-secondary" onClick={() => navigate("/restaurant/register-request")}>
                 Register Business
               </button>
             </div>

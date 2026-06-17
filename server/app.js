@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import userRoute from "./routes/UserRoute.js";
+import userRoute from "./routes/userRoute.js";
 import foodRoute from "./routes/foodRoute.js";
 import cartRoute from "./routes/cartRoute.js";
 import orderRoute from "./routes/orderRoute.js";

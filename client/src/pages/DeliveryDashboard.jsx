@@ -76,7 +76,7 @@ function DeliveryDashboard() {
 
   useEffect(() => {
     if (!user || user.role !== "delivery") {
-      navigate("/login");
+      navigate("/delivery/login");
       return;
     }
 
@@ -151,7 +151,7 @@ function DeliveryDashboard() {
 
   const logout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/delivery/login");
   };
 
   if (!user || user.role !== "delivery") {

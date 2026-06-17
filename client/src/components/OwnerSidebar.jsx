@@ -25,7 +25,7 @@ function OwnerSidebar() {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/restaurant/login");
   };
 
   return (

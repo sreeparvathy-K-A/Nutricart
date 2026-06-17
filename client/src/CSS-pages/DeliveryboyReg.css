@@ -2,13 +2,14 @@
   position: relative;
   min-height: calc(100vh - 72px);
   margin-top: 72px;
-  padding: 12px 16px;
+  padding: 42px 18px;
   background:
     radial-gradient(circle at top left, rgba(91, 191, 193, 0.22), transparent 28%),
     linear-gradient(135deg, #edf8f8 0%, #d9eeee 52%, #f6fbfb 100%);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .deliveryreg-overlay {
@@ -21,22 +22,20 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1080px;
+  max-width: 1100px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 1fr);
-  gap: 0;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 22px 60px rgba(8, 25, 20, 0.18);
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px);
+  grid-template-columns: minmax(300px, 0.85fr) minmax(440px, 1.15fr);
+  gap: 18px;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
 }
 
 .deliveryreg-showcase {
   position: relative;
-  padding: 26px 28px;
-  min-height: 400px;
+  padding: 34px 32px;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -44,6 +43,9 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 22px 60px rgba(8, 25, 20, 0.18);
 }
 
 .deliveryreg-showcase::before {
@@ -85,7 +87,7 @@
   margin: 0;
   font-size: clamp(1.75rem, 2.8vw, 2.9rem);
   line-height: 1.05;
-  max-width: 11ch;
+  max-width: 13ch;
 }
 
 .deliveryreg-copy {
@@ -114,7 +116,7 @@
 .deliveryreg-note-card {
   margin-top: 16px;
   padding: 14px 16px;
-  border-radius: 18px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   color: #173a39;
   max-width: 300px;
@@ -133,8 +135,11 @@
 
 .delivery-form {
   width: 100%;
-  padding: 26px 28px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border: 1px solid rgba(23, 82, 81, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 22px 60px rgba(8, 25, 20, 0.14);
 }
 
 .deliveryreg-head h2 {
@@ -152,8 +157,28 @@
 .delivery-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.delivery-section-title {
+  margin: 4px 0 -2px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(23, 82, 81, 0.1);
+}
+
+.delivery-section-title:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.delivery-section-title span {
+  color: #0f7e78;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .delivery-field {
@@ -172,7 +197,7 @@
 .delivery-field select {
   width: 100%;
   padding: 12px 13px;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid rgba(23, 82, 81, 0.15);
   background: rgba(248, 251, 249, 0.98);
   font-size: 0.89rem;
@@ -194,8 +219,10 @@
 }
 
 .file-field input {
-  padding: 10px 12px;
-  background: rgba(241, 249, 247, 0.95);
+  padding: 13px;
+  border-style: dashed;
+  background: #f4fbfb;
+  cursor: pointer;
 }
 
 .error {
@@ -209,7 +236,7 @@
   margin-top: 14px;
   padding: 12px 14px;
   border: none;
-  border-radius: 14px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #0f7e78, #299f96);
   color: #fff;
   font-size: 0.9rem;
@@ -232,7 +259,9 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(23, 82, 81, 0.1);
   color: #647778;
   font-size: 0.82rem;
 }
@@ -249,12 +278,13 @@
 
 @media (max-width: 900px) {
   .deliveryreg-page {
-    display: block;
+    display: flex;
+    align-items: flex-start;
   }
 
   .deliveryreg-shell {
     grid-template-columns: 1fr;
-    border-radius: 24px;
+    gap: 14px;
   }
 
   .deliveryreg-showcase,
@@ -262,15 +292,23 @@
     min-height: auto;
     padding: 22px 20px;
   }
+
+  .deliveryreg-showcase h1 {
+    max-width: 18ch;
+  }
 }
 
 @media (max-width: 640px) {
   .deliveryreg-page {
-    padding: 10px 12px 18px;
+    padding: 18px 12px 26px;
   }
 
   .deliveryreg-shell {
-    border-radius: 20px;
+    gap: 12px;
+  }
+
+  .delivery-form {
+    padding: 22px 18px;
   }
 
   .delivery-grid {

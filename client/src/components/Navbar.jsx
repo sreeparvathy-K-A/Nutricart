@@ -1,31 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { FaSignInAlt, FaUserCircle, FaUserPlus } from "react-icons/fa";
 import "../CSS-pages/Navbar.css";
 import logoImg from "../assets/images/logo.png";
 
 function Navbar() {
-  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
   const role = user?.role?.toLowerCase?.() || "";
-  const isAuthPage =
-    location.pathname === "/login" ||
-    location.pathname === "/register-client" ||
-    location.pathname === "/register-owner" ||
-    location.pathname === "/register-delivery";
-  const showGuestNav = !user || isAuthPage;
+  const showGuestNav = !user;
 
   const moduleLinks = {
-    admin: [{ to: "/admin-dashboard", label: "Admin Dashboard" }],
+    admin: [{ to: "/admin/dashboard", label: "Admin Dashboard" }],
     client: [{ to: "/client-dashboard", label: "Client Dashboard" }],
     owner: [
-      { to: "/owner", label: "Owner Dashboard" },
+      { to: "/restaurant/dashboard", label: "Restaurant Dashboard" },
       { to: "/owner/my-foods", label: "My Foods" },
       { to: "/owner/add-food", label: "Add Food" },
     ],
-    delivery: [{ to: "/delivery-dashboard", label: "Delivery Dashboard" }],
+    delivery: [{ to: "/delivery/dashboard", label: "Delivery Dashboard" }],
   };
 
   useEffect(() => {
@@ -79,33 +74,40 @@ function Navbar() {
           <Link to="/" className="nav-item">
             Home
           </Link>
-          <Link to="/menu" className="nav-item">
-            Menu
+          <Link to="/restaurants" className="nav-item">
+            Restaurants
+          </Link>
+          <Link to="/cart" className="nav-item">
+            Cart
           </Link>
 
           {showGuestNav ? (
-            <>
-              <Link to="/login" className="nav-item nav-item-outline">
-                Login
-              </Link>
+            <div className="dropdown auth-dropdown">
+              <button
+                type="button"
+                className="account-icon-btn"
+                onClick={() => setOpen(!open)}
+                aria-label="Open login and registration menu"
+                aria-expanded={open}
+              >
+                <FaUserCircle />
+              </button>
 
-              <div className="dropdown">
-                <span className="nav-item nav-item-solid" onClick={() => setOpen(!open)}>
-                  Register
-                </span>
-                <ul className={`dropdown-menu ${open ? "show" : ""}`}>
-                  <li>
-                    <Link to="/register-client">Client</Link>
-                  </li>
-                  <li>
-                    <Link to="/register-owner">Owner</Link>
-                  </li>
-                  <li>
-                    <Link to="/register-delivery">Delivery Boy</Link>
-                  </li>
-                </ul>
-              </div>
-            </>
+              <ul className={`dropdown-menu auth-menu ${open ? "show" : ""}`}>
+                <li>
+                  <Link to="/login" onClick={() => setOpen(false)}>
+                    <FaSignInAlt />
+                    Login
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/register" onClick={() => setOpen(false)}>
+                    <FaUserPlus />
+                    Register
+                  </Link>
+                </li>
+              </ul>
+            </div>
           ) : (
             <div className="dropdown">
               <span className="nav-item nav-item-solid" onClick={() => setProfileOpen(!profileOpen)}>

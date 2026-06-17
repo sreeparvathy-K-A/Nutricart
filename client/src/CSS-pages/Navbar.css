@@ -47,6 +47,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .nav-item {
@@ -75,6 +76,27 @@
   position: relative;
 }
 
+.account-icon-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  color: #f8f3ea;
+  font-size: 1.45rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(34, 128, 73, 0.18);
+}
+
 .dropdown-menu {
   display: none;
   position: absolute;
@@ -95,11 +117,17 @@
 
 .dropdown-menu li a,
 .dropdown-menu li span {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 16px;
   color: #f8f3ea;
   text-decoration: none;
   cursor: pointer;
+}
+
+.auth-menu {
+  min-width: 170px;
 }
 
 .dropdown-menu li a:hover,
@@ -109,20 +137,60 @@
 
 @media (max-width: 768px) {
   .navbar {
-    height: auto;
-    padding: 14px 18px;
+    height: 72px;
+    padding: 0 12px;
   }
 
   .navbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 8px;
   }
 
   .nav-right {
-    flex-wrap: wrap;
+    gap: 4px;
   }
 
   .logo-text {
-    font-size: 1.15rem;
+    display: none;
+  }
+
+  .logo-img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .nav-item {
+    padding: 8px 9px;
+    font-size: 0.82rem;
+  }
+
+  .account-icon-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.28rem;
+  }
+
+  .dropdown-menu {
+    right: -2px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .navbar {
+    padding: 0 8px;
+  }
+
+  .nav-left {
+    gap: 0;
+  }
+
+  .nav-right {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .nav-item {
+    padding: 7px 7px;
+    font-size: 0.76rem;
   }
 }

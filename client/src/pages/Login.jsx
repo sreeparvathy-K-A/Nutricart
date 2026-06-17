@@ -1,38 +1,55 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import loginBg from "../assets/images/login-img.jpg";
 import "../CSS-pages/Login.css";
 
 const roleRoutes = {
-  admin: "/admin-dashboard",
+  admin: "/admin/dashboard",
   client: "/client-dashboard",
-  owner: "/owner",
-  delivery: "/delivery-dashboard",
+  owner: "/restaurant/dashboard",
+  delivery: "/delivery/dashboard",
 };
 
-function Login() {
+function Login({ mode = "" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isAdminLogin = mode === "admin" || location.pathname === "/admin/login";
+  const isOwnerLogin = mode === "owner" || location.pathname === "/restaurant/login";
+  const isDeliveryLogin = mode === "delivery" || location.pathname === "/delivery/login";
+  const isClientLogin = mode === "client" || location.pathname === "/login" || location.pathname === "/client-login";
+
+  const expectedRole = isAdminLogin
+    ? "admin"
+    : isOwnerLogin
+      ? "owner"
+      : isDeliveryLogin
+        ? "delivery"
+        : isClientLogin
+          ? "client"
+          : "";
+
+  const loginEndpoint = isAdminLogin ? "admin-login" : isClientLogin ? "client-login" : "login";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("userInfo");
-
     if (!storedUser || storedUser === "undefined") return;
 
     try {
       const user = JSON.parse(storedUser);
       const role = user?.role?.toLowerCase?.().trim?.();
 
-      if (roleRoutes[role]) {
+      if ((!expectedRole || role === expectedRole) && roleRoutes[role]) {
         navigate(roleRoutes[role], { replace: true });
       }
     } catch {
       localStorage.removeItem("userInfo");
       localStorage.removeItem("token");
     }
-  }, [navigate]);
+  }, [expectedRole, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -45,7 +62,7 @@ function Login() {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch("http://localhost:5000/api/users/login", {
+      const res = await fetch(`http://localhost:5000/api/users/${loginEndpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),
@@ -54,10 +71,16 @@ function Login() {
       const data = await res.json();
 
       if (res.ok && data.user) {
+        const role = data.user?.role?.toLowerCase?.().trim?.();
+
+        if (expectedRole && role !== expectedRole) {
+          alert("Please use the correct login page for this account.");
+          return;
+        }
+
         localStorage.setItem("userInfo", JSON.stringify(data.user));
         localStorage.setItem("token", data.token || "");
         window.dispatchEvent(new Event("user-auth-changed"));
-        const role = data.user?.role?.toLowerCase?.().trim?.();
         navigate(roleRoutes[role] || "/", { replace: true });
         return;
       }
@@ -71,8 +94,58 @@ function Login() {
     }
   };
 
+  const pageLabel = isAdminLogin
+    ? "Nutricart Admin"
+    : isOwnerLogin
+      ? "Restaurant Owner"
+      : isDeliveryLogin
+        ? "Delivery Partner"
+        : "Nutricart Customer";
+
+  const title = isAdminLogin
+    ? "Admin Login"
+    : isOwnerLogin
+      ? "Restaurant Login"
+      : isDeliveryLogin
+        ? "Delivery Login"
+        : "Customer Login";
+
+  const headline = isAdminLogin
+    ? "Sign in to manage Nutricart operations."
+    : isOwnerLogin
+      ? "Sign in to manage your restaurant."
+      : isDeliveryLogin
+        ? "Sign in to manage assigned deliveries."
+        : "Sign in to order healthy meals.";
+
+  const description = isAdminLogin
+    ? "Use your admin account to review users, approvals, orders, and delivery work."
+    : isOwnerLogin
+      ? "Use your approved restaurant account to manage food items, orders, and earnings."
+      : isDeliveryLogin
+        ? "Use your approved delivery account to view assigned orders and update status."
+        : "Use your customer account to manage your cart, checkout, and order history.";
+
+  const statItems = isAdminLogin
+    ? ["Approvals", "Orders", "Analytics"]
+    : isOwnerLogin
+      ? ["Menu", "Orders", "Earnings"]
+      : isDeliveryLogin
+        ? ["Assigned", "Picked", "Delivered"]
+        : ["Browse", "Cart", "Orders"];
+
+  const pageClassName = [
+    "auth-page",
+    "login-page",
+    isAdminLogin ? "admin-login-page" : "",
+    isOwnerLogin ? "restaurant-login-page" : "",
+    isDeliveryLogin ? "delivery-login-page" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="auth-page login-page" style={{ backgroundImage: `url(${loginBg})` }}>
+    <div className={pageClassName} style={{ backgroundImage: `url(${loginBg})` }}>
       <div className="auth-overlay" />
 
       <div className="auth-shell">
@@ -82,16 +155,23 @@ function Login() {
             backgroundImage: `linear-gradient(155deg, rgba(9, 73, 58, 0.82), rgba(11, 35, 30, 0.64)), url(${loginBg})`,
           }}
         >
-          <p className="auth-kicker">Nutricart Access</p>
-          <h1>Sign in to continue to your Nutricart dashboard.</h1>
-          <p className="auth-copy">Access your role dashboard and manage your work in one place.</p>
+          <p className="auth-kicker">{pageLabel}</p>
+          <div>
+            <h1>{headline}</h1>
+            <p className="auth-copy">{description}</p>
+          </div>
+          <div className="auth-stat-row">
+            {statItems.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
         </section>
 
         <form className="auth-card" onSubmit={handleLogin}>
           <div className="auth-card-head">
             <p className="auth-eyebrow">Welcome back</p>
-            <h2>Login</h2>
-            <span>Use your registered account to continue.</span>
+            <h2>{title}</h2>
+            <span>Enter your account credentials to continue.</span>
           </div>
 
           <div className="auth-field">
@@ -123,9 +203,41 @@ function Login() {
           </button>
 
           <div className="auth-footer-links">
-            <span>New to Nutricart?</span>
-            <Link to="/register-client">Create client account</Link>
+            {isOwnerLogin ? (
+              <>
+                <span>Need restaurant access?</span>
+                <Link to="/restaurant/register-request">Become a Restaurant Partner</Link>
+              </>
+            ) : isDeliveryLogin ? (
+              <>
+                <span>Need delivery access?</span>
+                <Link to="/delivery/register-request">Become a Delivery Partner</Link>
+              </>
+            ) : isAdminLogin ? (
+              <>
+                <span>Signing in as a customer?</span>
+                <Link to="/login">Customer Login</Link>
+              </>
+            ) : (
+              <>
+                <span>Don't have an account?</span>
+                <Link to="/register">Register</Link>
+              </>
+            )}
           </div>
+
+          {!isAdminLogin ? (
+            <div className="auth-footer-links auth-secondary-links">
+              {isClientLogin ? (
+                <>
+                  <Link to="/restaurant/login">Restaurant Login</Link>
+                  <Link to="/delivery/login">Delivery Login</Link>
+                </>
+              ) : (
+                <Link to="/login">Customer Login</Link>
+              )}
+            </div>
+          ) : null}
         </form>
       </div>
     </div>
