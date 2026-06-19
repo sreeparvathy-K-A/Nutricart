@@ -90,7 +90,7 @@
 }
 
 .client-logout-btn {
-  align-self: flex-start;
+  align-self: flex-end;
   display: inline-flex;
   align-items: center;
   gap: 8px;
