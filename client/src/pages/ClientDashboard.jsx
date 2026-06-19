@@ -88,6 +88,8 @@ function ClientDashboard() {
 
   const logout = () => {
     localStorage.removeItem("userInfo");
+    localStorage.removeItem("token");
+    window.dispatchEvent(new Event("user-auth-changed"));
     navigate("/login");
   };
 

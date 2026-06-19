@@ -34,21 +34,6 @@ function Home() {
     },
   ];
 
-  const steps = [
-    {
-      title: "Browse healthy choices",
-      text: "Open the menu and filter meals by the style you want.",
-    },
-    {
-      title: "Add real menu items",
-      text: "Choose food from registered partners and add it to your cart.",
-    },
-    {
-      title: "Order with confidence",
-      text: "Checkout, track your order, and keep your healthy routine simple.",
-    },
-  ];
-
   const handleCategoryClick = (category) => {
     navigate(`/menu?search=${encodeURIComponent(category.searchTerm || category.name)}`);
   };
@@ -96,27 +81,6 @@ function Home() {
         </div>
       </section>
 
-      <section className="home-shell intro-strip">
-        <div className="intro-left">
-          <p className="section-kicker">Simple Flow</p>
-          <h2>Healthy ordering without confusing preview items</h2>
-        </div>
-        <p className="intro-right">
-          Home now guides customers into the real menu, where every food card can be opened,
-          added to cart, and ordered properly.
-        </p>
-      </section>
-
-      <section className="home-shell home-flow-section">
-        {steps.map((step, index) => (
-          <article className="home-flow-card" key={step.title}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
-          </article>
-        ))}
-      </section>
-
       <section className="home-shell home-cta-section">
         <div className="home-cta-block">
           <div>
@@ -130,17 +94,6 @@ function Home() {
           <button type="button" onClick={() => navigate("/menu")}>
             Open Menu
           </button>
-        </div>
-      </section>
-
-      <section className="home-shell taste-section">
-        <div className="taste-block">
-          <p className="section-kicker">Why Nutricart</p>
-          <h2>Healthy food ordering that feels modern and inviting</h2>
-          <p className="taste-copy">
-            Built to attract customers with a clean green brand, healthier meal
-            choices, and a simpler way to discover what to eat.
-          </p>
         </div>
       </section>
     </div>

@@ -6,7 +6,7 @@ import "../CSS-pages/admin-Login.css";
 const API_BASE_URL = "";
 
 function AdminLogin() {
-  const [email, setEmail] = useState("admin@nutricart.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ function AdminLogin() {
           <div className="admin-auth-head">
             <p>Secure Access</p>
             <h2>Admin login</h2>
-            <span>Use the administrator credentials configured for Nutricart.</span>
+            <span>Enter your authorized administrator credentials to continue.</span>
           </div>
 
           <div className="admin-auth-field">

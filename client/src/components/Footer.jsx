@@ -28,6 +28,7 @@ function Footer() {
           <Link to="/restaurants"><span>Restaurants</span><FaArrowRight /></Link>
           <Link to="/cart"><span>Cart</span><FaArrowRight /></Link>
           <Link to="/contact"><span>Contact Us</span><FaArrowRight /></Link>
+          <Link to="/admin/login"><span>Admin Demo</span><FaArrowRight /></Link>
         </nav>
 
         <div className="footer-column">

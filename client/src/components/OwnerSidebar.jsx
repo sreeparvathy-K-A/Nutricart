@@ -32,7 +32,9 @@ function OwnerSidebar() {
   ];
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("token");
+    window.dispatchEvent(new Event("user-auth-changed"));
     navigate("/restaurant/login");
   };
 

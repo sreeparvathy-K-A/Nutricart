@@ -1,4 +1,4 @@
-import userModel from "../models/userModel.js";
+import userModel from "../models/UserModel.js";
 
 const adminAuth = async (req, res, next) => {
   try {

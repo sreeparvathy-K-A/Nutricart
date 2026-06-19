@@ -150,7 +150,9 @@ function DeliveryDashboard() {
   };
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("token");
+    window.dispatchEvent(new Event("user-auth-changed"));
     navigate("/delivery/login");
   };
 

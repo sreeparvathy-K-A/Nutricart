@@ -1,4 +1,4 @@
-import userModel from "../models/userModel.js";
+import userModel from "../models/UserModel.js";
 import Client from "../models/clientModel.js";
 import Owner from "../models/ownerModel.js";
 import DeliveryBoy from "../models/deliveryboyModel.js";

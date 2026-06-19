@@ -55,13 +55,6 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("token");
-    window.dispatchEvent(new Event("user-auth-changed"));
-    window.location.href = "/";
-  };
-
   return (
     <nav className="navbar">
       <div className="navbar-inner">
@@ -133,11 +126,6 @@ function Navbar() {
                     <Link to={item.to}>{item.label}</Link>
                   </li>
                 ))}
-                {role !== "owner" ? (
-                  <li>
-                    <span onClick={handleLogout}>Logout</span>
-                  </li>
-                ) : null}
               </ul>
             </div>
           )}

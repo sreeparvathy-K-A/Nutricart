@@ -226,16 +226,9 @@ function Login({ mode = "" }) {
             )}
           </div>
 
-          {!isAdminLogin && !isOwnerLogin ? (
+          {isDeliveryLogin ? (
             <div className="auth-footer-links auth-secondary-links">
-              {isClientLogin ? (
-                <>
-                  <Link to="/restaurant/login">Restaurant Login</Link>
-                  <Link to="/delivery/login">Delivery Login</Link>
-                </>
-              ) : (
-                <Link to="/login">Customer Login</Link>
-              )}
+              <Link to="/login">Customer Login</Link>
             </div>
           ) : null}
         </form>
