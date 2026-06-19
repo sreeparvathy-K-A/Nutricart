@@ -3,7 +3,8 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS-pages/Menu.css";
 
-const API_BASE_URL = "";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
 
 function Menu() {
   const location = useLocation();

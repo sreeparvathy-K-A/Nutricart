@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "../CSS-pages/DeliveryboyReg.css";
 import deliveryBg from "../assets/images/deliveryreg.jpg";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+
 function DeliveryBoyReg() {
   const [form, setForm] = useState({
     name: "",
@@ -50,7 +53,7 @@ function DeliveryBoyReg() {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch("/api/delivery/register", {
+      const res = await fetch(`${API_BASE_URL}/api/delivery/register`, {
         method: "POST",
         body: formData,
       });

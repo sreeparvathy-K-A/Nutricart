@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import loginBg from "../assets/images/login-img.jpg";
 import "../CSS-pages/admin-Login.css";
 
-const API_BASE_URL = "";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
 
 function AdminLogin() {
   const [email, setEmail] = useState("");

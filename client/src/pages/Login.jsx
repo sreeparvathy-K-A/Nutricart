@@ -3,6 +3,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import loginBg from "../assets/images/login-img.jpg";
 import "../CSS-pages/Login.css";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+
 const roleRoutes = {
   admin: "/admin/dashboard",
   client: "/client-dashboard",
@@ -62,7 +65,7 @@ function Login({ mode = "" }) {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch(`/api/users/${loginEndpoint}`, {
+      const res = await fetch(`${API_BASE_URL}/api/users/${loginEndpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),

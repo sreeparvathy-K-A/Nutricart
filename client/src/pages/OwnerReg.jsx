@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "../CSS-pages/OwnerReg.css";
 import ownerBg from "../assets/images/OwnerReg.jpg";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+
 function OwnerReg() {
   const [form, setForm] = useState({
     businessName: "",
@@ -94,7 +97,7 @@ function OwnerReg() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch("/api/registerOwner", {
+      const response = await fetch(`${API_BASE_URL}/api/registerOwner`, {
         method: "POST",
         body: formData,
       });

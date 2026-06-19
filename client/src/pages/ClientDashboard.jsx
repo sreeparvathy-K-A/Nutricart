@@ -8,7 +8,8 @@ import menuImg from "../assets/images/menuimg.jpg";
 import cartImg from "../assets/images/cartimg.jpg";
 import ordersImg from "../assets/images/orderimg.jpg";
 
-const API_BASE_URL = "";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
 
 function ClientDashboard() {
   const navigate = useNavigate();
