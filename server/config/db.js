@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 
 export const connectDB = async () => {
-  const mongoUri =
-    process.env.MONGO_URI ||
-    "mongodb+srv://sreeparvathyka63_db_user:Nutricart@cluster0.9tv7dku.mongodb.net/Food-del";
+  const mongoUri = process.env.MONGO_URI;
+
+  if (!mongoUri) {
+    throw new Error("MONGO_URI is not configured");
+  }
 
   try {
     await mongoose.connect(mongoUri);

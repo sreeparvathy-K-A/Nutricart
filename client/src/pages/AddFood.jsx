@@ -71,7 +71,7 @@ const AddFood = () => {
     try {
       setIsSubmitting(true);
 
-      const response = await axios.post("http://localhost:5000/api/foods/add", data, {
+      const response = await axios.post("/api/foods/add", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

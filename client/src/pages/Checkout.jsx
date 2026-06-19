@@ -3,7 +3,7 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS-pages/Checkout.css";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 
 const initialForm = {
   fullName: "",

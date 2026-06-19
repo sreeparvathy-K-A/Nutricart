@@ -3,7 +3,7 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS-pages/Menu.css";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 
 function Menu() {
   const location = useLocation();
@@ -27,7 +27,7 @@ function Menu() {
 
   const fetchFoods = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/foods/list");
+      const res = await axios.get("/api/foods/list");
       const foodData = res.data?.foods || res.data || [];
 
       if (Array.isArray(foodData)) {
@@ -99,7 +99,7 @@ function Menu() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/carts/add", {
+      const response = await axios.post("/api/carts/add", {
         userId: storedUser.id,
         foodId,
         quantity,

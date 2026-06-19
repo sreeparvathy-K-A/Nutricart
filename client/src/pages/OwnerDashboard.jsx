@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 
 function OwnerDashboard() {
   const navigate = useNavigate();

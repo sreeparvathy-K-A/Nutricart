@@ -50,7 +50,7 @@ function DeliveryBoyReg() {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch("http://localhost:5000/api/delivery/register", {
+      const res = await fetch("/api/delivery/register", {
         method: "POST",
         body: formData,
       });

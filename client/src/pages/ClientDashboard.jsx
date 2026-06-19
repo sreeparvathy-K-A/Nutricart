@@ -8,7 +8,7 @@ import menuImg from "../assets/images/menuimg.jpg";
 import cartImg from "../assets/images/cartimg.jpg";
 import ordersImg from "../assets/images/orderimg.jpg";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 
 function ClientDashboard() {
   const navigate = useNavigate();

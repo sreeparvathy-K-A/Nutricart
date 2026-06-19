@@ -21,7 +21,7 @@ function OwnerProfile() {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/users/update", user);
+      const response = await axios.post("/api/users/update", user);
       const updatedUser = response.data?.user || user;
 
       setUser(updatedUser);

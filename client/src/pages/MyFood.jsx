@@ -5,7 +5,7 @@ import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 import "../CSS-pages/MyFood.css";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 
 const emptyForm = {
   name: "",

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import loginBg from "../assets/images/login-img.jpg";
 import "../CSS-pages/admin-Login.css";
 
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = "";
 
 function AdminLogin() {
   const [email, setEmail] = useState("admin@nutricart.com");

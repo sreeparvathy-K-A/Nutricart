@@ -94,7 +94,7 @@ function OwnerReg() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch("http://localhost:5000/api/registerOwner", {
+      const response = await fetch("/api/registerOwner", {
         method: "POST",
         body: formData,
       });

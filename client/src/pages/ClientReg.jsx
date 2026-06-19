@@ -59,7 +59,7 @@ function ClientReg() {
     try {
       setIsSubmitting(true);
 
-      await axios.post("http://localhost:5000/api/clients", {
+      await axios.post("/api/clients", {
         name: form.name,
         email: form.email,
         phone: form.phone,

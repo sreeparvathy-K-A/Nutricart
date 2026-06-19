@@ -62,7 +62,7 @@ function Login({ mode = "" }) {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch(`http://localhost:5000/api/users/${loginEndpoint}`, {
+      const res = await fetch(`/api/users/${loginEndpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),

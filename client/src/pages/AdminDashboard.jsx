@@ -4,7 +4,7 @@ import axios from "axios";
 import { FaChevronLeft, FaChevronRight, FaSearch } from "react-icons/fa";
 import "../CSS-pages/AdminDashboard.css";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "";
 
 function AdminDashboard() {
   const navigate = useNavigate();
