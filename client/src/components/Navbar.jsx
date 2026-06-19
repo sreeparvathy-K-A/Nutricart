@@ -109,10 +109,20 @@ function Navbar() {
               </ul>
             </div>
           ) : (
-            <div className="dropdown">
-              <span className="nav-item nav-item-solid" onClick={() => setProfileOpen(!profileOpen)}>
-                {user.name || "Profile"}
-              </span>
+            <div className="dropdown profile-dropdown">
+              <button
+                type="button"
+                className="profile-trigger"
+                onClick={() => setProfileOpen(!profileOpen)}
+                aria-label="Open account menu"
+                aria-expanded={profileOpen}
+              >
+                <FaUserCircle className="profile-trigger-icon" />
+                <span className="profile-trigger-text">
+                  <small>{role === "admin" ? "Admin" : role || "User"}</small>
+                  <strong>{user.name || (role === "admin" ? "Admin" : "User")}</strong>
+                </span>
+              </button>
 
               <ul className={`dropdown-menu ${profileOpen ? "show" : ""}`}>
                 <li>
@@ -123,9 +133,11 @@ function Navbar() {
                     <Link to={item.to}>{item.label}</Link>
                   </li>
                 ))}
-                <li>
-                  <span onClick={handleLogout}>Logout</span>
-                </li>
+                {role !== "owner" ? (
+                  <li>
+                    <span onClick={handleLogout}>Logout</span>
+                  </li>
+                ) : null}
               </ul>
             </div>
           )}

@@ -92,31 +92,7 @@ function OwnerDashboard() {
   ];
 
   const recentFoods = foods.slice(0, 4);
-  const topCategories = [...new Set(foods.map((food) => food.category).filter(Boolean))].slice(0, 4);
-  const menuNote =
-    totalFoods === 0
-      ? "Start by adding your first healthy food item."
-      : `${totalFoods} items are live in your menu. Keep prices and nutrition details updated.`;
   const latestFood = foods[0]?.name || "No food added yet";
-  const averagePrice =
-    totalFoods > 0
-      ? Math.round(
-          foods.reduce((sum, food) => sum + Number(food.price || 0), 0) / totalFoods
-        )
-      : 0;
-  const highestProteinFood =
-    foods.length > 0
-      ? [...foods].sort((a, b) => Number(b.protein || 0) - Number(a.protein || 0))[0]?.name
-      : "No items yet";
-  const nutritionCompleteness =
-    totalFoods > 0
-      ? Math.round(
-          (foods.filter((food) => Number(food.calories || 0) > 0 && Number(food.protein || 0) > 0)
-            .length /
-            totalFoods) *
-            100
-        )
-      : 0;
 
   return (
     <div className="owner-dashboard">
@@ -155,66 +131,12 @@ function OwnerDashboard() {
           ))}
         </section>
 
-        <section className="owner-grid">
-          <div className="dashboard-panel">
-            <div className="panel-heading">
-              <div>
-                <p className="panel-kicker">Menu Summary</p>
-                <h2>Store Overview</h2>
-              </div>
-            </div>
-
-            <div className="overview-layout">
-              <div className="overview-card overview-card-main">
-                <span className="overview-eyebrow">Menu pulse</span>
-                <strong>{menuNote}</strong>
-                <p>
-                  Track the strength of your menu and keep each item clear,
-                  healthy, and well-priced.
-                </p>
-              </div>
-
-              <div className="overview-side-stack">
-                <div className="overview-metric accent-warm">
-                  <span>Average Price</span>
-                  <strong>{isLoading ? "..." : `Rs. ${averagePrice}`}</strong>
-                </div>
-                <div className="overview-metric accent-green">
-                  <span>Top Protein Item</span>
-                  <strong>{isLoading ? "..." : highestProteinFood}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="overview-strip">
-              <div className="overview-mini-card">
-                <span>Nutrition Ready</span>
-                <strong>{isLoading ? "..." : `${nutritionCompleteness}%`}</strong>
-              </div>
-              <div className="overview-mini-card">
-                <span>Latest Category</span>
-                <strong>{topCategories[0] || "Add category"}</strong>
-              </div>
-            </div>
-
-            <div className="category-strip">
-              {topCategories.length === 0 ? (
-                <span className="category-pill muted">No categories yet</span>
-              ) : (
-                topCategories.map((category) => (
-                  <span className="category-pill" key={category}>
-                    {category}
-                  </span>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="dashboard-panel">
+        <section className="owner-grid owner-grid-single">
+          <div className="dashboard-panel recent-menu-panel">
             <div className="panel-heading">
               <div>
                 <p className="panel-kicker">Recent Foods</p>
-                <h2>Your Menu</h2>
+                <h2>Recently Added Menu Items</h2>
               </div>
             </div>
 

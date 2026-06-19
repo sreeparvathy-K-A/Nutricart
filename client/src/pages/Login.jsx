@@ -105,7 +105,7 @@ function Login({ mode = "" }) {
   const title = isAdminLogin
     ? "Admin Login"
     : isOwnerLogin
-      ? "Restaurant Login"
+      ? "Owner Login"
       : isDeliveryLogin
         ? "Delivery Login"
         : "Customer Login";
@@ -226,7 +226,7 @@ function Login({ mode = "" }) {
             )}
           </div>
 
-          {!isAdminLogin ? (
+          {!isAdminLogin && !isOwnerLogin ? (
             <div className="auth-footer-links auth-secondary-links">
               {isClientLogin ? (
                 <>

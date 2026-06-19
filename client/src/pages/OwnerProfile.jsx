@@ -41,57 +41,81 @@ function OwnerProfile() {
 
       <main className="owner-main profile-main">
         <div className="profile-card">
-          <h2>Owner Profile</h2>
+          <div className="profile-card-head">
+            <div className="profile-avatar">
+              {(user.name || "O").charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p>Account details</p>
+              <h2>Owner Profile</h2>
+              <span>Keep your restaurant information accurate and up to date.</span>
+            </div>
+          </div>
 
-          <input
-            type="text"
-            name="name"
-            value={user.name || ""}
-            disabled={!edit}
-            onChange={handleChange}
-          />
+          <div className="profile-fields">
+            <label>
+              <span>Name</span>
+              <input
+                type="text"
+                name="name"
+                value={user.name || ""}
+                disabled={!edit}
+                onChange={handleChange}
+              />
+            </label>
 
-          <input type="email" name="email" value={user.email || ""} disabled />
+            <label>
+              <span>Email</span>
+              <input type="email" name="email" value={user.email || ""} disabled />
+            </label>
 
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone"
-            value={user.phone || ""}
-            disabled={!edit}
-            onChange={handleChange}
-          />
+            <label>
+              <span>Phone</span>
+              <input
+                type="text"
+                name="phone"
+                placeholder="Phone"
+                value={user.phone || ""}
+                disabled={!edit}
+                onChange={handleChange}
+              />
+            </label>
 
-          <input
-            type="text"
-            name="hotel"
-            placeholder="Hotel Name"
-            value={user.hotel || ""}
-            disabled={!edit}
-            onChange={handleChange}
-          />
+            <label>
+              <span>Restaurant Name</span>
+              <input
+                type="text"
+                name="hotel"
+                placeholder="Restaurant name"
+                value={user.hotel || ""}
+                disabled={!edit}
+                onChange={handleChange}
+              />
+            </label>
 
-          <input
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={user.address || ""}
-            disabled={!edit}
-            onChange={handleChange}
-          />
+            <label className="profile-field-wide">
+              <span>Address</span>
+              <input
+                type="text"
+                name="address"
+                placeholder="Address"
+                value={user.address || ""}
+                disabled={!edit}
+                onChange={handleChange}
+              />
+            </label>
+          </div>
 
-          {!edit ? (
-            <button onClick={() => setEdit(true)}>Edit</button>
-          ) : (
-            <>
-              <button className="save" onClick={handleUpdate}>
-                Save
-              </button>
-              <button className="cancel" onClick={() => setEdit(false)}>
-                Cancel
-              </button>
-            </>
-          )}
+          <div className="profile-actions">
+            {!edit ? (
+              <button onClick={() => setEdit(true)}>Edit Profile</button>
+            ) : (
+              <>
+                <button className="save" onClick={handleUpdate}>Save Changes</button>
+                <button className="cancel" onClick={() => setEdit(false)}>Cancel</button>
+              </>
+            )}
+          </div>
         </div>
       </main>
     </div>

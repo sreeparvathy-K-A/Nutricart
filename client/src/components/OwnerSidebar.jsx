@@ -1,5 +1,13 @@
 import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  FaChartPie,
+  FaPlusCircle,
+  FaSignOutAlt,
+  FaStore,
+  FaUserCircle,
+  FaUtensils,
+} from "react-icons/fa";
 
 function OwnerSidebar() {
   const navigate = useNavigate();
@@ -17,10 +25,10 @@ function OwnerSidebar() {
   const ownerEmail = storedUser?.email || "owner@nutricart.com";
 
   const navItems = [
-    { label: "Dashboard", path: "/owner" },
-    { label: "My Foods", path: "/owner/my-foods" },
-    { label: "Add Food", path: "/owner/add-food" },
-    { label: "Profile", path: "/owner/profile" },
+    { label: "Dashboard", path: "/restaurant/dashboard", icon: FaChartPie },
+    { label: "My Foods", path: "/owner/my-foods", icon: FaUtensils },
+    { label: "Add Food", path: "/owner/add-food", icon: FaPlusCircle },
+    { label: "Profile", path: "/owner/profile", icon: FaUserCircle },
   ];
 
   const handleLogout = () => {
@@ -31,7 +39,7 @@ function OwnerSidebar() {
   return (
     <aside className="owner-sidebar">
       <div className="owner-brand">
-        <span className="brand-badge">NC</span>
+        <span className="brand-badge"><FaStore /></span>
         <div>
           <p className="brand-kicker">Nutricart</p>
           <h2>Owner Panel</h2>
@@ -47,6 +55,7 @@ function OwnerSidebar() {
       <nav className="owner-nav">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
+          const Icon = item.icon;
 
           return (
             <button
@@ -55,6 +64,7 @@ function OwnerSidebar() {
               className={`owner-nav-item ${isActive ? "active" : ""}`}
               onClick={() => navigate(item.path)}
             >
+              <Icon aria-hidden="true" />
               {item.label}
             </button>
           );
@@ -62,6 +72,7 @@ function OwnerSidebar() {
       </nav>
 
       <button className="logout-button" type="button" onClick={handleLogout}>
+        <FaSignOutAlt aria-hidden="true" />
         Logout
       </button>
     </aside>

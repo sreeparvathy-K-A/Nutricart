@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
@@ -18,10 +18,8 @@ const AddFood = () => {
   const [formData, setFormData] = useState(initialFormState);
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState("");
 
   const storedUser = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  const ownerName = storedUser?.name || "Owner";
   const hotelName =
     storedUser?.hotel ||
     storedUser?.businessName ||
@@ -32,20 +30,6 @@ const AddFood = () => {
     [storedUser?.city, storedUser?.state, storedUser?.pincode].filter(Boolean).join(", ");
   const ownerId = storedUser?.id || "";
   const ownerEmail = storedUser?.email || "";
-
-  useEffect(() => {
-    if (!image) {
-      setImagePreview("");
-      return undefined;
-    }
-
-    const previewUrl = URL.createObjectURL(image);
-    setImagePreview(previewUrl);
-
-    return () => {
-      URL.revokeObjectURL(previewUrl);
-    };
-  }, [image]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -110,20 +94,9 @@ const AddFood = () => {
 
       <main className="owner-main add-food-main">
       <section className="add-food-hero">
-        <div className="add-food-hero-copy">
-          <p className="add-food-kicker">Owner tools</p>
-          <h1>Add a new food item</h1>
-          <p>
-            Build your menu with better presentation, clean nutrition details,
-            and a photo customers will notice.
-          </p>
-        </div>
-
-        <div className="add-food-owner-card">
-          <span>Publishing as</span>
-          <strong>{hotelName}</strong>
-          <p>{ownerLocation || "Add your address in owner profile to show menu location."}</p>
-        </div>
+        <p className="add-food-kicker">Menu Management</p>
+        <h1>Add Food</h1>
+        <p>Add the food information customers need to see.</p>
       </section>
 
       <div className="add-food-layout">
@@ -232,35 +205,6 @@ const AddFood = () => {
             {isSubmitting ? "Saving..." : "Add Food"}
           </button>
         </form>
-
-        <aside className="add-food-preview">
-          <p className="add-food-kicker">Preview</p>
-          <div className="preview-card">
-            <div
-              className="preview-image"
-              style={
-                imagePreview
-                  ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.08)), url(${imagePreview})` }
-                  : undefined
-              }
-            >
-              {!imagePreview && <span>Image preview</span>}
-            </div>
-
-            <div className="preview-body">
-              <div className="preview-price">Rs. {formData.price || "--"}</div>
-              <h3>{formData.name || "Your food name"}</h3>
-              <p>{formData.description || "Your menu description will appear here."}</p>
-
-              <div className="preview-meta">
-                <span>{formData.category || "Category"}</span>
-                <span>{formData.calories || "--"} kcal</span>
-                <span>{formData.protein || "--"} g protein</span>
-                <span>{formData.rating || "--"} rating</span>
-              </div>
-            </div>
-          </div>
-        </aside>
       </div>
       </main>
     </div>

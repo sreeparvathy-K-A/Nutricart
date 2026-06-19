@@ -12,28 +12,95 @@
 }
 
 .profile-card {
-  width: min(100%, 460px);
+  width: min(100%, 760px);
   background: rgba(255, 255, 255, 0.92);
-  padding: 28px;
+  padding: 32px;
   border-radius: 24px;
-  box-shadow: 0 16px 38px rgba(28, 67, 51, 0.08);
+  border: 1px solid rgba(29, 90, 69, 0.08);
+  box-shadow: 0 20px 48px rgba(28, 67, 51, 0.1);
+}
+
+.profile-card-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e4ebe6;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #1f5a45, #3d8869);
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(31, 90, 69, 0.2);
+}
+
+.profile-card-head p {
+  margin: 0 0 4px;
+  color: #d06d45;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .profile-card h2 {
-  margin: 0 0 18px;
+  margin: 0 0 5px;
   color: #1d3d31;
+}
+
+.profile-card-head span {
+  color: #697a71;
+  line-height: 1.45;
+}
+
+.profile-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.profile-fields label {
+  min-width: 0;
+}
+
+.profile-fields label > span {
+  display: block;
+  margin: 0 0 6px;
+  color: #52695e;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.profile-field-wide {
+  grid-column: 1 / -1;
 }
 
 .profile-card input {
   width: 100%;
-  padding: 12px 14px;
-  margin-bottom: 12px;
+  padding: 13px 14px;
   border: 1px solid #d8e3da;
-  border-radius: 14px;
+  border-radius: 12px;
   outline: none;
   font: inherit;
   color: #1f342b;
   background: #fcfdfb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-card input:disabled {
+  border-color: #e4eae6;
+  background: #f2f5f3;
+  color: #607168;
+  opacity: 1;
 }
 
 .profile-card input:focus {
@@ -41,10 +108,16 @@
   box-shadow: 0 0 0 4px rgba(216, 120, 73, 0.12);
 }
 
+.profile-actions {
+  margin-top: 26px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .profile-card button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 6px;
+  min-width: 140px;
+  padding: 12px 18px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -74,5 +147,21 @@
 
   .profile-card {
     padding: 20px;
+  }
+
+  .profile-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-field-wide {
+    grid-column: auto;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+  }
+
+  .profile-card button {
+    width: 100%;
   }
 }

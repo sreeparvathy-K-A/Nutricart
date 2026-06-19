@@ -141,33 +141,11 @@ function OwnerReg() {
       <div className="ownerreg-overlay" />
 
       <div className="ownerreg-shell">
-        <section
-          className="ownerreg-showcase"
-          style={{
-            backgroundImage: `linear-gradient(155deg, rgba(86, 96, 29, 0.84), rgba(33, 47, 23, 0.66)), url(${ownerBg})`,
-          }}
-        >
-          <p className="ownerreg-kicker">Owner Registration</p>
-          <h1>Register your food business with a clear approval-ready setup.</h1>
-          <p className="ownerreg-copy">
-            Add business info, location, and required documents in one compact form.
-          </p>
-          <div className="ownerreg-badges">
-            <span>Store profile</span>
-            <span>Documents upload</span>
-            <span>Approval process</span>
-          </div>
-
-          <div className="ownerreg-note-card">
-            <strong>Why this step matters</strong>
-            <p>Complete details help admin review your business faster and avoid rework later.</p>
-          </div>
-        </section>
-
         <div className="owner-form">
           <div className="ownerreg-head">
-            <h2>Create Owner Account</h2>
-            <p>Complete the details below and we will send your request for approval.</p>
+            <p className="ownerreg-kicker">Restaurant Partner</p>
+            <h2>Owner Registration</h2>
+            <p>Enter your business details and documents for admin approval.</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -258,7 +236,7 @@ function OwnerReg() {
                 <span>Location</span>
               </div>
 
-              <div className="owner-field full">
+              <div className="owner-field">
                 <label htmlFor="ownerStreet">Street Address</label>
                 <input
                   id="ownerStreet"
@@ -314,14 +292,14 @@ function OwnerReg() {
                 <span>Documents</span>
               </div>
 
-              <div className="owner-field full file-field">
+              <div className="owner-field file-field">
                 <label htmlFor="ownerPhoto">Owner Photo</label>
-                <input id="ownerPhoto" type="file" name="ownerPhoto" onChange={handleFileChange} />
+                <input id="ownerPhoto" type="file" name="ownerPhoto" accept="image/*" onChange={handleFileChange} />
               </div>
 
-              <div className="owner-field full file-field">
+              <div className="owner-field file-field">
                 <label htmlFor="shopImage">Shop Image</label>
-                <input id="shopImage" type="file" name="shopImage" onChange={handleFileChange} />
+                <input id="shopImage" type="file" name="shopImage" accept="image/*" onChange={handleFileChange} />
               </div>
 
               <div className="owner-field full file-field">
@@ -330,6 +308,7 @@ function OwnerReg() {
                   id="licenseImage"
                   type="file"
                   name="licenseImage"
+                  accept="image/*"
                   onChange={handleFileChange}
                 />
               </div>

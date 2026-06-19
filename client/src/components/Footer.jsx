@@ -33,6 +33,7 @@ function Footer() {
 
         <div className="footer-column">
           <h3>Available in:</h3>
+          <span>Kerala</span>
           <span>Bangalore</span>
           <span>Hyderabad</span>
           <span>Delhi</span>

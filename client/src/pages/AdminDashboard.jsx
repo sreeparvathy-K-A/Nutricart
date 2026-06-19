@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaChevronLeft, FaChevronRight, FaSearch } from "react-icons/fa";
 import "../CSS-pages/AdminDashboard.css";
 
 const API_BASE_URL = "http://localhost:5000";
@@ -13,6 +14,9 @@ function AdminDashboard() {
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [assignments, setAssignments] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 3;
   const [dashboardCounts, setDashboardCounts] = useState({
     clients: 0,
     owners: 0,
@@ -43,8 +47,80 @@ function AdminDashboard() {
 
   const openTab = (tab) => {
     setSelectedUser(null);
+    setSearchTerm("");
+    setCurrentPage(1);
     setActiveTab(tab);
   };
+
+  const filteredData = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return data;
+
+    return data.filter((item) => {
+      const searchableText = [
+        item._id,
+        item.name,
+        item.username,
+        item.ownerName,
+        item.email,
+        item.phone,
+        item.mobile,
+        item.role,
+        item.status,
+        item.address,
+        item.deliveryBoyName,
+        item.deliveryBoyId?.name,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    });
+  }, [data, searchTerm]);
+
+  const renderSearch = (placeholder) => (
+    <label className="admin-search">
+      <FaSearch aria-hidden="true" />
+      <input
+        type="search"
+        value={searchTerm}
+        onChange={(event) => {
+          setSearchTerm(event.target.value);
+          setCurrentPage(1);
+        }}
+        placeholder={placeholder}
+        aria-label={placeholder}
+      />
+    </label>
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / recordsPerPage));
+  const pageStart = (currentPage - 1) * recordsPerPage;
+  const paginatedData = filteredData.slice(pageStart, pageStart + recordsPerPage);
+
+  const renderViewMore = () =>
+    filteredData.length > recordsPerPage ? (
+      <div className="admin-pagination">
+        <button
+          type="button"
+          onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+          disabled={currentPage === 1}
+        >
+          <FaChevronLeft aria-hidden="true" />
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button
+          type="button"
+          onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+          disabled={currentPage === totalPages}
+        >
+          View More
+          <FaChevronRight aria-hidden="true" />
+        </button>
+      </div>
+    ) : null;
 
   useEffect(() => {
     try {
@@ -218,64 +294,74 @@ function AdminDashboard() {
   };
 
   const renderTable = () => (
-    <div className="table-container">
-      <h2>{activeTab.toUpperCase()} MANAGEMENT</h2>
+    <div className="table-container order-management-box">
+      <div className="order-management-head">
+        <div>
+          <h2>{activeTab.toUpperCase()} MANAGEMENT</h2>
+          <p className="admin-section-note">{tabLabels[activeTab]}</p>
+        </div>
+        <span>{data.length} records</span>
+      </div>
 
-      <div className="admin-table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+      {renderSearch(`Search ${activeTab}`)}
 
-        <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan="7">
-                {activeTab === "delivery"
-                  ? "No delivery registrations found. Register a delivery boy first."
-                  : "No data found"}
-              </td>
-            </tr>
-          ) : (
-            data.map((item, index) => {
-              const status = getItemStatus(item);
-              const canReview =
-                (activeTab === "owners" || activeTab === "delivery") &&
-                status === "pending";
+      <div className="admin-record-list">
+        {filteredData.length === 0 ? (
+          <div className="order-admin-empty">
+            {searchTerm
+              ? "No matching records found."
+              : activeTab === "delivery"
+              ? "No delivery registrations found. Register a delivery boy first."
+              : "No records found"}
+          </div>
+        ) : (
+          paginatedData.map((item, index) => {
+            const status = getItemStatus(item);
+            const canReview =
+              (activeTab === "owners" || activeTab === "delivery") &&
+              status === "pending";
+            const name = item.name || item.username || item.ownerName || "Unknown user";
 
-              return (
-              <tr key={item._id}>
-                <td>
-                  <span className="admin-row-number">{index + 1}</span>
-                </td>
-                <td>{item.name || item.username || item.ownerName}</td>
-                <td>{item.email}</td>
-                <td>{item.phone || item.mobile || "-"}</td>
-                <td>{getItemRole(item)}</td>
-                <td>
-                  <span className={`admin-status admin-status-${status}`}>
-                    {status}
-                  </span>
-                </td>
-                <td>
-                  <div className="admin-action-group">
-                    <button
-                      className="view"
-                      onClick={() => handleAction(activeTab, "View", item._id)}
-                    >
-                      View
-                    </button>
+            return (
+              <article className="admin-record-card" key={item._id}>
+                <div className="admin-record-head">
+                  <div>
+                    <span>{getItemRole(item)} record</span>
+                    <h3>{String(pageStart + index + 1).padStart(2, "0")}. {name}</h3>
+                  </div>
+                  <span className={`admin-status admin-status-${status}`}>{status}</span>
+                </div>
 
-                    {canReview ? (
-                      <>
+                <div className="admin-record-id">
+                  <span>RECORD ID</span>
+                  <strong>#{item._id?.slice(-6).toUpperCase()}</strong>
+                </div>
+
+                <div className="admin-record-details">
+                  <div>
+                    <span>Email</span>
+                    <strong>{item.email || "Not provided"}</strong>
+                  </div>
+                  <div>
+                    <span>Phone</span>
+                    <strong>{item.phone || item.mobile || "Not provided"}</strong>
+                  </div>
+                  <div>
+                    <span>Role</span>
+                    <strong>{getItemRole(item)}</strong>
+                  </div>
+                </div>
+
+                <div className="admin-record-actions">
+                  <button
+                    className="view"
+                    onClick={() => handleAction(activeTab, "View", item._id)}
+                  >
+                    View Details
+                  </button>
+
+                  {canReview ? (
+                    <>
                       <button
                         className="approve"
                         onClick={() => handleAction(activeTab, "Approve", item._id)}
@@ -288,19 +374,17 @@ function AdminDashboard() {
                       >
                         Reject
                       </button>
-                      </>
-                    ) : activeTab === "owners" || activeTab === "delivery" ? (
-                      <span className="admin-action-note">Reviewed</span>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+                    </>
+                  ) : activeTab === "owners" || activeTab === "delivery" ? (
+                    <span className="admin-action-note">Review completed</span>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })
+        )}
       </div>
+      {renderViewMore()}
     </div>
   );
 
@@ -316,18 +400,48 @@ function AdminDashboard() {
         <span>{data.length} pending</span>
       </div>
 
+      {renderSearch("Search order ID, status, delivery, or address")}
+
       <div className="order-admin-list">
-        {data.length === 0 ? (
-          <div className="order-admin-empty">No orders waiting for assignment</div>
+        {filteredData.length === 0 ? (
+          <div className="order-admin-empty">
+            {searchTerm ? "No matching orders found." : "No orders waiting for assignment"}
+          </div>
         ) : (
-          data.map((order) => (
+          paginatedData.map((order, index) => (
             <div className="order-admin-card" key={order._id}>
               <div className="order-admin-head">
-                <div>
-                  <strong>Order #{order._id.slice(-6).toUpperCase()}</strong>
-                  <p>{order.items?.length || 0} item(s)</p>
+                <div className="order-admin-identity">
+                  <div>
+                    <span className="order-admin-label">Pending assignment</span>
+                    <strong className="order-admin-title">
+                      ORDER {String(pageStart + index + 1).padStart(2, "0")}
+                    </strong>
+                  </div>
                 </div>
-                <span className="order-admin-status">{order.status}</span>
+                <div className="order-admin-summary">
+                  <span className="order-admin-status">{order.status}</span>
+                </div>
+              </div>
+
+              <div className="order-admin-id-strip">
+                <span>ORDER ID</span>
+                <strong>#{order._id.slice(-6).toUpperCase()}</strong>
+              </div>
+
+              <div className="order-admin-quick-info">
+                <div>
+                  <span>Items</span>
+                  <strong>{order.items?.length || 0}</strong>
+                </div>
+                <div>
+                  <span>Total</span>
+                  <strong>Rs. {order.totalAmount || 0}</strong>
+                </div>
+                <div>
+                  <span>Delivery</span>
+                  <strong>{order.deliveryBoyName || order.deliveryBoyId?.name || "Unassigned"}</strong>
+                </div>
               </div>
 
               <div className="order-admin-items">
@@ -383,6 +497,7 @@ function AdminDashboard() {
           ))
         )}
       </div>
+      {renderViewMore()}
     </div>
   );
 

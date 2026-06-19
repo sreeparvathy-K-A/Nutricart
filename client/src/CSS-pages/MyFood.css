@@ -31,19 +31,15 @@
 }
 
 .owner-food-hero {
-  padding: 28px 32px;
-  border-radius: 30px;
-  background:
-    linear-gradient(125deg, rgba(19, 71, 53, 0.92), rgba(50, 111, 79, 0.82)),
-    #1f513d;
-  color: #f8f4ed;
-  box-shadow: 0 24px 55px rgba(22, 62, 48, 0.16);
+  padding: 4px 2px;
+  color: #1d4033;
 }
 
 .owner-food-hero p {
   max-width: 620px;
   margin-bottom: 0;
   line-height: 1.6;
+  color: #607369;
 }
 
 .owner-food-empty {
