@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../CSS-pages/Cart.css";
@@ -12,9 +12,10 @@ function Cart() {
 
   const storedUser = JSON.parse(localStorage.getItem("userInfo") || "null");
   const userId = storedUser?.id || "";
+  const userRole = storedUser?.role || "";
 
-  const fetchCart = async () => {
-    if (!storedUser || storedUser.role !== "client") {
+  const fetchCart = useCallback(async () => {
+    if (userRole !== "client") {
       setCartItems([]);
       setLoading(false);
       return;
@@ -30,11 +31,11 @@ function Cart() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, userRole]);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   const updateQuantity = async (cartId, quantity) => {
     try {

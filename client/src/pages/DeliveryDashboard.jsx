@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../CSS-pages/DeliveryDashboard.css";
@@ -31,7 +31,7 @@ function DeliveryDashboard() {
     }
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -41,9 +41,9 @@ function DeliveryDashboard() {
       console.log("Delivery orders error:", error.response?.data || error.message);
       setOrders([]);
     }
-  };
+  }, [user?.id]);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -61,9 +61,9 @@ function DeliveryDashboard() {
     } catch (error) {
       console.log("Delivery profile error:", error.response?.data || error.message);
     }
-  };
+  }, [user?.id]);
 
-  const refreshDashboard = async () => {
+  const refreshDashboard = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -72,7 +72,7 @@ function DeliveryDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchOrders, fetchProfile, user?.id]);
 
   useEffect(() => {
     if (!user || user.role !== "delivery") {
@@ -81,7 +81,7 @@ function DeliveryDashboard() {
     }
 
     refreshDashboard();
-  }, [navigate]);
+  }, [navigate, refreshDashboard, user]);
 
   const updateStatus = async (orderId, status) => {
     try {

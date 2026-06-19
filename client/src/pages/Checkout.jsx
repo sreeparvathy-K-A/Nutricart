@@ -45,7 +45,10 @@ function Checkout() {
     }
   }, []);
 
-  const cartItems = Array.isArray(location.state?.cartItems) ? location.state.cartItems : [];
+  const cartItems = useMemo(
+    () => (Array.isArray(location.state?.cartItems) ? location.state.cartItems : []),
+    [location.state?.cartItems]
+  );
   const totalAmount = Number(location.state?.totalAmount || 0);
 
   const totalQuantity = useMemo(
