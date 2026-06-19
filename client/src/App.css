@@ -36,41 +36,74 @@ textarea {
 }
 
 .site-footer {
-  background: #f1f2f6;
-  color: #242833;
-  padding: 34px 26px 20px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(45, 181, 122, 0.16), transparent 28%),
+    #10261f;
+  color: #eaf5f0;
+  padding: 64px 28px 22px;
 }
 
 .site-footer-inner {
   width: min(1180px, 100%);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.15fr repeat(5, minmax(130px, 1fr));
-  gap: 34px;
+  grid-template-columns: 1.4fr repeat(5, minmax(120px, 1fr));
+  gap: 42px 30px;
   align-items: start;
 }
 
-.footer-column h2,
 .footer-column h3 {
   margin: 0 0 18px;
-  color: #05070d;
-  font-weight: 800;
+  color: #ffffff;
+  font-weight: 700;
   line-height: 1.2;
 }
 
-.footer-column h2 {
-  font-size: 1.45rem;
+.footer-column h3 {
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.footer-column h3 {
-  font-size: 1.02rem;
+.footer-logo {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px !important;
+  color: #fff !important;
+  font-size: 1.55rem !important;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.footer-logo-mark {
+  display: inline-grid !important;
+  width: 38px !important;
+  height: 38px;
+  margin: 0 !important;
+  place-items: center;
+  border-radius: 12px;
+  background: #34c78a;
+  color: #10261f !important;
+  font-size: 1.05rem !important;
 }
 
 .footer-brand p {
-  max-width: 230px;
-  color: #555b68;
-  line-height: 1.55;
-  font-size: 0.94rem;
+  max-width: 255px;
+  color: #b8ccc4;
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+
+.footer-tagline {
+  margin-top: 18px !important;
+  color: #64dda9 !important;
+  font-size: 0.8rem !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .footer-column a,
@@ -78,15 +111,44 @@ textarea {
   display: block;
   width: fit-content;
   margin: 0 0 14px;
-  color: #4d5564;
+  color: #b8ccc4;
   text-decoration: none;
-  font-size: 0.94rem;
+  font-size: 0.9rem;
   line-height: 1.35;
+  transition: color 180ms ease, transform 180ms ease;
 }
 
 .footer-column a:hover {
-  color: #121722;
-  text-decoration: underline;
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateX(3px);
+}
+
+.footer-company a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(170px, 100%);
+  padding: 9px 0;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.footer-company a span {
+  margin: 0;
+}
+
+.footer-company a svg {
+  color: #54d39e;
+  font-size: 0.72rem;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.footer-company a:hover svg {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .footer-socials {
@@ -96,29 +158,38 @@ textarea {
 }
 
 .footer-socials a {
-  width: 22px;
-  height: 22px;
+  width: 36px;
+  height: 36px;
   margin: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #3f434c;
-  font-size: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  color: #d9ebe4;
+  font-size: 0.9rem;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
 .footer-socials a:hover {
-  color: #0d7758;
+  border-color: #34c78a;
+  background: #34c78a;
+  color: #10261f;
   text-decoration: none;
+  transform: translateY(-3px);
 }
 
 .footer-bottom {
   width: min(1180px, 100%);
   margin: 24px auto 0;
   padding-top: 18px;
-  border-top: 1px solid rgba(37, 43, 54, 0.1);
-  color: #555b68;
-  font-size: 0.85rem;
-  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #8fa79e;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 @media (max-width: 1020px) {
@@ -129,7 +200,7 @@ textarea {
 
 @media (max-width: 760px) {
   .site-footer {
-    padding: 30px 20px 18px;
+    padding: 48px 20px 18px;
   }
 
   .site-footer-inner {
@@ -145,5 +216,10 @@ textarea {
 
   .footer-brand p {
     max-width: none;
+  }
+
+  .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

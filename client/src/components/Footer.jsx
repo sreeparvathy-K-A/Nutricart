@@ -1,23 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTwitter } from "react-icons/fa";
+import {
+  FaArrowRight,
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaPinterestP,
+  FaTwitter,
+} from "react-icons/fa";
 
 function Footer() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="footer-column footer-brand">
-          <h2>Nutricart</h2>
+          <Link className="footer-logo" to="/" aria-label="Nutricart home">
+            <span className="footer-logo-mark">N</span>
+            <span>Nutricart</span>
+          </Link>
           <p>Fresh, healthy food ordering made simple for customers and partners.</p>
+          <span className="footer-tagline">Eat better. Live brighter.</span>
         </div>
 
-        <div className="footer-column">
+        <nav className="footer-column footer-company" aria-label="Company">
           <h3>Company</h3>
-          <Link to="/about">About Us</Link>
-          <Link to="/restaurants">Restaurants</Link>
-          <Link to="/cart">Cart</Link>
-          <Link to="/contact">Contact Us</Link>
-        </div>
+          <Link to="/about"><span>About Us</span><FaArrowRight /></Link>
+          <Link to="/restaurants"><span>Restaurants</span><FaArrowRight /></Link>
+          <Link to="/cart"><span>Cart</span><FaArrowRight /></Link>
+          <Link to="/contact"><span>Contact Us</span><FaArrowRight /></Link>
+        </nav>
 
         <div className="footer-column">
           <h3>Partners</h3>
@@ -64,7 +75,8 @@ function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>Copyright 2026 Nutricart. All rights reserved.</p>
+        <p>© 2026 Nutricart. All rights reserved.</p>
+        <p>Made with care for healthier choices.</p>
       </div>
     </footer>
   );
