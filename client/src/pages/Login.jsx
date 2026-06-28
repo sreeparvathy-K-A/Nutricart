@@ -108,7 +108,7 @@ function Login({ mode = "" }) {
   const title = isAdminLogin
     ? "Admin Login"
     : isOwnerLogin
-      ? "Owner Login"
+      ? "Restaurant Login"
       : isDeliveryLogin
         ? "Delivery Login"
         : "Customer Login";

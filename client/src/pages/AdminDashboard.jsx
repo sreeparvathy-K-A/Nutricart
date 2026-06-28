@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaCheckCircle, FaChevronLeft, FaChevronRight, FaClock, FaSearch, FaTimesCircle, FaUserPlus } from "react-icons/fa";
+import { LuActivity, LuClipboardList, LuEye, LuHash, LuIndianRupee, LuLayoutDashboard, LuLogOut, LuShieldCheck, LuStore, LuTruck, LuUser, LuUsers, LuUtensils } from "react-icons/lu";
 import "../CSS-pages/AdminDashboard.css";
 
 const API_BASE_URL =
@@ -12,6 +13,7 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [data, setData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [assignments, setAssignments] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -40,9 +42,9 @@ function AdminDashboard() {
   );
 
   const tabLabels = {
-    dashboard: "Overview of clients, owners, delivery registrations, and orders.",
+    dashboard: "Overview of clients, restaurants, delivery registrations, and orders.",
     clients: "View registered client accounts.",
-    owners: "Review owner registrations and approval status.",
+    owners: "Review restaurant registrations and approval status.",
     delivery: "Approve delivery registrations before delivery login.",
     orders: "Track orders and assign approved delivery partners.",
   };
@@ -56,6 +58,7 @@ function AdminDashboard() {
 
   const openTab = (tab) => {
     setSelectedUser(null);
+    setSelectedOrder(null);
     setSearchTerm("");
     setCurrentPage(1);
     setActiveTab(tab);
@@ -192,7 +195,7 @@ function AdminDashboard() {
         axios.get(`${API_BASE_URL}/api/admin/clients`),
         axios.get(`${API_BASE_URL}/api/admin/owners`),
         axios.get(`${API_BASE_URL}/api/admin/delivery`),
-        axios.get(`${API_BASE_URL}/api/orders/list?assignable=true`),
+        axios.get(`${API_BASE_URL}/api/orders/list`),
       ]);
 
       setDashboardCounts({
@@ -233,7 +236,7 @@ function AdminDashboard() {
       setIsLoading(true);
       if (type === "orders") {
         const [ordersRes, deliveryRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/orders/list?assignable=true`),
+          axios.get(`${API_BASE_URL}/api/orders/list`),
           axios.get(`${API_BASE_URL}/api/admin/delivery`),
         ]);
 
@@ -320,6 +323,12 @@ function AdminDashboard() {
     } else {
       fetchData(activeTab);
     }
+    const refreshTimer = activeTab === "orders"
+      ? window.setInterval(() => fetchData("orders"), 15000)
+      : null;
+    return () => {
+      if (refreshTimer) window.clearInterval(refreshTimer);
+    };
     // Fetching is intentionally tied to tab changes only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
@@ -384,7 +393,7 @@ function AdminDashboard() {
 
   const renderOwnerImages = (owner) => {
     const images = [
-      { label: "Owner Photo", value: owner.ownerPhoto },
+      { label: "Restaurant Owner Photo", value: owner.ownerPhoto },
       { label: "Shop Image", value: owner.shopImage },
       { label: "License Image", value: owner.licenseImage },
     ];
@@ -550,107 +559,34 @@ function AdminDashboard() {
         <div>
           <h2>ORDER MANAGEMENT</h2>
           <p className="admin-section-note">
-            Showing only orders waiting for delivery assignment. Assigned orders move to the delivery dashboard.
+            View all client orders and assign delivery partners to active orders.
           </p>
         </div>
-        <span>{data.length} pending</span>
+        <span>{data.length} orders</span>
       </div>
 
       {renderSearch("Search order ID, status, delivery, or address")}
 
-      <div className="order-admin-list">
+      <div className="admin-order-table-scroll">
         {filteredData.length === 0 ? (
           <div className="order-admin-empty">
-            {searchTerm ? "No matching orders found." : "No orders waiting for assignment"}
+            {searchTerm ? "No matching orders found." : "No orders found"}
           </div>
         ) : (
-          paginatedData.map((order, index) => (
-            <div className="order-admin-card" key={order._id}>
-              <div className="order-admin-head">
-                <div className="order-admin-identity">
-                  <div>
-                    <span className="order-admin-label">Pending assignment</span>
-                    <strong className="order-admin-title">
-                      ORDER {String(pageStart + index + 1).padStart(2, "0")}
-                    </strong>
-                  </div>
-                </div>
-                <div className="order-admin-summary">
-                  <span className="order-admin-status">{order.status}</span>
-                </div>
-              </div>
-
-              <div className="order-admin-id-strip">
-                <span>ORDER ID</span>
-                <strong>#{order._id.slice(-6).toUpperCase()}</strong>
-              </div>
-
-              <div className="order-admin-quick-info">
-                <div>
-                  <span>Items</span>
-                  <strong>{order.items?.length || 0}</strong>
-                </div>
-                <div>
-                  <span>Total</span>
-                  <strong>Rs. {order.totalAmount || 0}</strong>
-                </div>
-                <div>
-                  <span>Delivery</span>
-                  <strong>{order.deliveryBoyName || order.deliveryBoyId?.name || "Unassigned"}</strong>
-                </div>
-              </div>
-
-              <div className="order-admin-items">
-                <strong>Items</strong>
-                {(order.items || []).map((item, index) => (
-                  <p key={`${order._id}-${index}`}>
-                    {item.foodId?.name || "Food item"} x {item.quantity}
-                  </p>
-                ))}
-              </div>
-
-              <div className="order-admin-details">
-                <div>
-                  <span>Address</span>
-                  <strong>{formatAddress(order.address) || "Not provided"}</strong>
-                </div>
-                <div>
-                  <span>Total Amount</span>
-                  <strong>Rs. {order.totalAmount || 0}</strong>
-                </div>
-                <div>
-                  <span>Assigned Delivery</span>
-                  <strong>{order.deliveryBoyName || order.deliveryBoyId?.name || "Not assigned"}</strong>
-                </div>
-              </div>
-
-              <div className="order-admin-actions">
-                <div>
-                  <span>Assign Delivery Partner</span>
-                <select
-                  value={assignments[order._id] || ""}
-                  onChange={(e) =>
-                    setAssignments((prev) => ({ ...prev, [order._id]: e.target.value }))
-                  }
-                >
-                  <option value="">Select delivery boy</option>
-                  {approvedDeliveryBoys.map((deliveryBoy) => (
-                    <option key={deliveryBoy._id} value={deliveryBoy._id}>
-                      {deliveryBoy.name}
-                    </option>
-                  ))}
-                </select>
-                </div>
-                <button
-                  className="approve"
-                  onClick={() => handleAssignDelivery(order._id)}
-                  disabled={approvedDeliveryBoys.length === 0}
-                >
-                  {order.deliveryBoyId ? "Reassign" : "Assign"}
-                </button>
-              </div>
-            </div>
-          ))
+          <table className="admin-order-table">
+            <thead><tr><th><LuHash /> Order</th><th><LuUser /> Client</th><th><LuStore /> Restaurant</th><th><LuIndianRupee /> Total</th><th><LuActivity /> Status</th><th><LuTruck /> Assign Delivery</th><th><LuEye /> Details</th></tr></thead>
+            <tbody>{paginatedData.map((order) => (
+              <tr key={order._id}>
+                <td><strong>#{order._id.slice(-6).toUpperCase()}</strong><small>{new Date(order.createdAt).toLocaleDateString()}</small></td>
+                <td><strong>{order.clientName || "Client"}</strong><small>{order.clientPhone || "No phone"}</small></td>
+                <td><span className="admin-order-restaurant">{[...new Set((order.items || []).map((item) => item.foodId?.hotelName).filter(Boolean))].join(", ") || "Not available"}</span></td>
+                <td><strong>Rs. {order.totalAmount || 0}</strong></td>
+                <td><span className="admin-order-pill">{order.status}</span></td>
+                <td>{["Delivered", "Cancelled"].includes(order.status) ? <span className="admin-order-complete">Completed</span> : <div className="admin-table-assignment"><select value={assignments[order._id] || ""} onChange={(e) => setAssignments((prev) => ({ ...prev, [order._id]: e.target.value }))}><option value="">Select partner</option>{approvedDeliveryBoys.map((deliveryBoy) => <option key={deliveryBoy._id} value={deliveryBoy._id}>{deliveryBoy.name}</option>)}</select><button className="approve" onClick={() => handleAssignDelivery(order._id)} disabled={approvedDeliveryBoys.length === 0}>{order.deliveryBoyId ? "Reassign" : "Assign"}</button></div>}</td>
+                <td><button type="button" className="admin-order-view" onClick={() => setSelectedOrder(order)}>View More</button></td>
+              </tr>
+            ))}</tbody>
+          </table>
         )}
       </div>
       {renderViewMore()}
@@ -660,41 +596,41 @@ function AdminDashboard() {
   return (
     <div className="admin-dashboard">
       <aside className="sidebar">
-        <h2>Admin Panel</h2>
+        <h2><LuShieldCheck /> Admin Panel</h2>
         <p className="admin-sidebar-note">Manage approvals, users, and delivery workflow.</p>
         <ul>
           <li
             className={activeTab === "dashboard" ? "active" : ""}
             onClick={() => openTab("dashboard")}
           >
-            Dashboard
+            <LuLayoutDashboard /> Dashboard
           </li>
           <li
             className={activeTab === "clients" ? "active" : ""}
             onClick={() => openTab("clients")}
           >
-            Clients
+            <LuUsers /> Clients
           </li>
           <li
             className={activeTab === "owners" ? "active" : ""}
             onClick={() => openTab("owners")}
           >
-            Owners
+            <LuStore /> Restaurants
           </li>
           <li
             className={activeTab === "delivery" ? "active" : ""}
             onClick={() => openTab("delivery")}
           >
-            Delivery
+            <LuTruck /> Delivery
           </li>
           <li
             className={activeTab === "orders" ? "active" : ""}
             onClick={() => openTab("orders")}
           >
-            Orders
+            <LuClipboardList /> Orders
           </li>
         </ul>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <button className="logout-btn" onClick={handleLogout}><LuLogOut /> Logout</button>
       </aside>
 
       <main className="main-content">
@@ -703,7 +639,9 @@ function AdminDashboard() {
           <h1>
             {activeTab === "dashboard"
               ? "Admin Dashboard"
-              : `${activeTab.charAt(0).toUpperCase()}${activeTab.slice(1)} Management`}
+              : activeTab === "owners"
+                ? "Restaurant Management"
+                : `${activeTab.charAt(0).toUpperCase()}${activeTab.slice(1)} Management`}
           </h1>
           <p className="admin-header-text">{tabLabels[activeTab]}</p>
         </section>
@@ -716,22 +654,26 @@ function AdminDashboard() {
             <>
               <div className="cards">
                 <button type="button" className="card" onClick={() => openTab("clients")}>
+                  <LuUsers className="admin-card-icon" />
                   <span>New this week: {reviewCounts.clientsNew}</span>
                   <h3>Clients</h3>
                   <p>{dashboardCounts.clients}</p>
                 </button>
                 <button type="button" className="card review-card" onClick={() => openTab("owners")}>
+                  <LuStore className="admin-card-icon" />
                   <span>Pending: {reviewCounts.ownersPending}</span>
-                  <h3>Owners</h3>
+                  <h3>Restaurants</h3>
                   <p>{dashboardCounts.owners}</p>
                 </button>
                 <button type="button" className="card review-card" onClick={() => openTab("delivery")}>
+                  <LuTruck className="admin-card-icon" />
                   <span>Pending: {reviewCounts.deliveryPending}</span>
                   <h3>Delivery</h3>
                   <p>{dashboardCounts.delivery}</p>
                 </button>
                 <button type="button" className="card" onClick={() => openTab("orders")}>
-                  <span>Assignable orders</span>
+                  <LuClipboardList className="admin-card-icon" />
+                  <span>All client orders</span>
                   <h3>Orders</h3>
                   <p>{dashboardCounts.orders}</p>
                 </button>
@@ -746,12 +688,32 @@ function AdminDashboard() {
         )}
       </main>
 
+      {selectedOrder ? (
+        <div className="modal" onMouseDown={() => setSelectedOrder(null)}>
+          <div className="modal-content admin-order-detail-modal" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="admin-modal-head"><div><p className="admin-kicker">Order Details</p><h2>#{selectedOrder._id.slice(-6).toUpperCase()}</h2></div><span className="admin-order-pill">{selectedOrder.status}</span></div>
+            <div className="admin-detail-grid">
+              {renderDetailField("Client", selectedOrder.clientName || "Client")}
+              {renderDetailField("Phone", selectedOrder.clientPhone || "Not available")}
+              {renderDetailField("Address", formatAddress(selectedOrder.address) || "Not available")}
+              {renderDetailField("Total Amount", `Rs. ${selectedOrder.totalAmount || 0}`)}
+              {renderDetailField("Restaurant Update", selectedOrder.restaurantStatus || "Pending")}
+              {renderDetailField("Delivery Status", selectedOrder.status || "Pending")}
+              {renderDetailField("Delivery Partner", selectedOrder.deliveryBoyId?.name || selectedOrder.deliveryBoyName || "Not assigned")}
+              {renderDetailField("Partner Phone", selectedOrder.deliveryBoyId?.phone || "Not available")}
+            </div>
+            <div className="admin-order-food-details"><h3><LuUtensils /> Hotel & Food Items</h3>{(selectedOrder.items || []).map((item, index) => <div key={`${selectedOrder._id}-${index}`}><div><span><LuStore /> Hotel Name</span><strong>{item.foodId?.hotelName || "Restaurant"}</strong></div><div><span><LuUtensils /> Food Item</span><strong>{item.foodId?.name || "Food"}</strong></div><div><span>Quantity</span><strong>{item.quantity || 1}</strong></div><div><span>Item Total</span><strong>Rs. {Number(item.foodId?.price || 0) * Number(item.quantity || 0)}</strong></div></div>)}</div>
+            <button type="button" onClick={() => setSelectedOrder(null)}>Close</button>
+          </div>
+        </div>
+      ) : null}
+
       {selectedUser && (
         <div className="modal">
           <div className={`modal-content ${selectedUser.role === "owner" || selectedUser.role === "delivery" ? "owner-detail-modal" : ""}`}>
             <div className="admin-modal-head">
               <div>
-                <p className="admin-kicker">{selectedUser.role || "User"} Details</p>
+                <p className="admin-kicker">{selectedUser.role === "owner" ? "Restaurant" : selectedUser.role || "User"} Details</p>
                 <h2>
                   {selectedUser.role === "owner"
                     ? selectedUser.businessName || selectedUser.ownerName
@@ -768,7 +730,7 @@ function AdminDashboard() {
                 <div className="admin-detail-grid">
                   {renderDetailField("Record No", `#${selectedUser._id?.slice(-6).toUpperCase()}`)}
                   {renderDetailField("Hotel Name", selectedUser.businessName)}
-                  {renderDetailField("Owner Name", selectedUser.ownerName)}
+                  {renderDetailField("Restaurant Owner", selectedUser.ownerName)}
                   {renderDetailField("Email", selectedUser.email)}
                   {renderDetailField("Phone", selectedUser.phone)}
                   {renderDetailField("FSSAI Number", selectedUser.fssaiNumber)}

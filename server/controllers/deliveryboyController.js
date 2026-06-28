@@ -33,6 +33,7 @@ const uploadDeliveryPhoto = async (file) => {
 
 export const registerDeliveryBoy = async (req, res) => {
   try {
+    const body = req.body || {};
     const {
       name,
       email,
@@ -42,7 +43,7 @@ export const registerDeliveryBoy = async (req, res) => {
       vehicleType,
       vehicleNumber,
       licenseNumber,
-    } = req.body;
+    } = body;
 
     if (!req.file) {
       return res.status(400).json({ message: "Photo required" });
@@ -102,6 +103,7 @@ export const getDeliveryProfile = async (req, res) => {
 export const updateDeliveryProfile = async (req, res) => {
   try {
     const { id } = req.params;
+    const body = req.body || {};
     const {
       name,
       phone,
@@ -110,19 +112,28 @@ export const updateDeliveryProfile = async (req, res) => {
       vehicleNumber,
       licenseNumber,
       availability,
-    } = req.body;
+    } = body;
+
+    const updates = {};
+    Object.entries({
+      name,
+      phone,
+      address,
+      vehicleType,
+      vehicleNumber,
+      licenseNumber,
+      availability,
+    }).forEach(([key, value]) => {
+      if (value !== undefined) updates[key] = value;
+    });
+
+    if (req.file) {
+      updates.photo = await uploadDeliveryPhoto(req.file);
+    }
 
     const deliveryBoy = await DeliveryBoy.findByIdAndUpdate(
       id,
-      {
-        name,
-        phone,
-        address,
-        vehicleType,
-        vehicleNumber,
-        licenseNumber,
-        availability,
-      },
+      updates,
       { new: true, runValidators: true }
     ).select("-password");
 

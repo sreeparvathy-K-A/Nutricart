@@ -35,6 +35,9 @@
   line-height: 1.2;
 }
 
+.admin-dashboard .sidebar h2 { display: flex; align-items: center; gap: 9px; }
+.admin-dashboard .sidebar h2 svg { width: 22px; height: 22px; color: #f0bd59; }
+
 .admin-dashboard .admin-sidebar-note {
   margin: 0 0 6px;
   color: rgba(244, 240, 230, 0.72);
@@ -60,6 +63,11 @@
   font-weight: 600;
   transition: background 0.2s ease, color 0.2s ease;
 }
+
+.admin-dashboard .sidebar ul li { display: flex; align-items: center; gap: 10px; }
+.admin-dashboard .sidebar ul li svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.admin-dashboard .logout-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.admin-dashboard .logout-btn svg { width: 16px; height: 16px; }
 
 .admin-dashboard .sidebar ul li:hover,
 .admin-dashboard .sidebar ul li.active {
@@ -182,6 +190,8 @@
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+.admin-dashboard .admin-card-icon { width: 21px; height: 21px; margin-bottom: 10px; padding: 9px; box-sizing: content-box; border-radius: 12px; background: #eaf4ee; color: #2c6b4b; }
 
 .admin-dashboard .card span {
   position: relative;
@@ -688,8 +698,8 @@
 }
 
 .admin-dashboard .order-management-head {
-  margin-bottom: 16px;
-  padding: 16px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
   border: 1px solid #e4ece8;
   border-radius: 8px;
   background: #ffffff;
@@ -709,7 +719,7 @@
 
 .admin-dashboard .order-management-head > span {
   flex: 0 0 auto;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 999px;
   background: #e8f6ee;
   color: #1f744d;
@@ -721,7 +731,7 @@
   position: relative;
   padding: 0;
   border: 2px solid #d6e5dd;
-  border-radius: 14px;
+  border-radius: 11px;
   background: #ffffff;
   overflow: hidden;
   box-shadow: 0 10px 24px rgba(28, 68, 52, 0.06);
@@ -743,7 +753,7 @@
 
 .admin-dashboard .order-admin-head {
   margin: 0;
-  padding: 18px 20px;
+  padding: 12px 15px;
   border-bottom: 0;
   background: #173b2e;
 }
@@ -766,7 +776,7 @@
 
 .admin-dashboard .order-admin-title {
   color: #ffffff !important;
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   letter-spacing: 0.04em;
 }
 
@@ -789,17 +799,17 @@
 }
 
 .admin-dashboard .order-admin-status {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 999px;
   background: #f2bd55;
   color: #50380b;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   text-transform: capitalize;
 }
 
 .admin-dashboard .order-admin-id-strip {
-  padding: 12px 20px;
+  padding: 8px 15px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -817,20 +827,20 @@
 .admin-dashboard .order-admin-id-strip strong {
   color: #173b2e;
   font-family: Consolas, monospace;
-  font-size: 1rem;
+  font-size: 0.9rem;
   letter-spacing: 0.08em;
 }
 
 .admin-dashboard .order-admin-quick-info {
-  margin: 16px 16px 0;
+  margin: 11px 12px 0;
   display: grid;
   grid-template-columns: 0.55fr 0.8fr 1.4fr;
   gap: 10px;
 }
 
 .admin-dashboard .order-admin-quick-info div {
-  padding: 13px 14px;
-  border-radius: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
   background: #f5f8f6;
   border: 1px solid #dfe8e3;
 }
@@ -847,12 +857,14 @@
 
 .admin-dashboard .order-admin-quick-info strong {
   color: #183c2e;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
+.admin-dashboard .admin-food-ready { color: #1f7a4d; }
+
 .admin-dashboard .order-admin-items {
-  margin: 16px;
-  padding: 14px;
+  margin: 11px 12px;
+  padding: 10px 11px;
   border: 1px solid #e4ece8;
   border-radius: 8px;
   background: #f8fbf9;
@@ -860,20 +872,20 @@
 
 .admin-dashboard .order-admin-items strong {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   color: #234338;
   font-size: 0.9rem;
 }
 
 .admin-dashboard .order-admin-details {
-  margin: 0 16px 16px;
+  margin: 0 12px 11px;
   display: grid;
   grid-template-columns: 1.4fr 0.75fr 1fr;
-  gap: 12px;
+  gap: 8px;
 }
 
 .admin-dashboard .order-admin-details div {
-  padding: 14px;
+  padding: 10px 11px;
   border: 1px solid #e4ece8;
   border-radius: 8px;
   background: #ffffff;
@@ -882,9 +894,9 @@
 .admin-dashboard .order-admin-details span,
 .admin-dashboard .order-admin-actions span {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: #6a7b70;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -893,13 +905,13 @@
 .admin-dashboard .order-admin-details strong {
   display: block;
   color: #20382f;
-  font-size: 0.92rem;
+  font-size: 0.85rem;
   line-height: 1.4;
 }
 
 .admin-dashboard .order-admin-actions {
   margin: 0;
-  padding: 16px;
+  padding: 11px 12px;
   border-top: 1px solid #edf2ef;
   background: #fbfdfc;
 }
@@ -910,11 +922,18 @@
 
 .admin-dashboard .order-admin-actions select {
   min-width: 220px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #d7e1da;
   background: white;
   color: #20382f;
+}
+
+.admin-dashboard .order-admin-actions button.approve {
+  min-width: 104px;
+  min-height: 40px;
+  padding: 9px 18px;
+  font-size: 0.9rem;
 }
 
 .admin-dashboard .order-admin-empty,
@@ -922,6 +941,32 @@
   padding: 20px;
   color: #5c7064;
 }
+
+.admin-dashboard .admin-order-table-scroll { overflow-x: auto; border: 1px solid #dfe8e3; border-radius: 13px; background: white; }
+.admin-dashboard .admin-order-table { width: 100%; min-width: 1050px; border-collapse: collapse; }
+.admin-dashboard .admin-order-table th { padding: 11px 12px; background: #edf4f0; color: #687a70; font-size: .7rem; text-align: left; text-transform: uppercase; letter-spacing: .04em; }
+.admin-dashboard .admin-order-table th svg { width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px; color: #397357; }
+.admin-dashboard .admin-order-table td { padding: 12px; border-top: 1px solid #e7ede9; color: #42584d; font-size: .8rem; vertical-align: top; }
+.admin-dashboard .admin-order-table td > strong, .admin-dashboard .admin-order-table td > small { display: block; }
+.admin-dashboard .admin-order-table td > small { max-width: 220px; margin-top: 3px; color: #75847c; overflow-wrap: anywhere; }
+.admin-dashboard .admin-order-item { display: block; margin-bottom: 3px; white-space: nowrap; }
+.admin-dashboard .admin-order-restaurant { display: block; color: #294f3e; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+.admin-dashboard .admin-order-pill { display: inline-block; padding: 5px 8px; border-radius: 999px; background: #edf3ef; color: #3d6250; font-size: .7rem; font-weight: 800; white-space: nowrap; }
+.admin-dashboard .admin-order-pill.ready { background: #dff3e6; color: #1e7047; }
+.admin-dashboard .admin-table-assignment { display: flex; gap: 7px; align-items: center; }
+.admin-dashboard .admin-table-assignment select { min-width: 145px; padding: 7px 8px; border: 1px solid #d5e0d9; border-radius: 8px; background: white; color: #29483b; }
+.admin-dashboard .admin-table-assignment button.approve { min-width: 76px; min-height: 34px; padding: 7px 11px; }
+.admin-dashboard .admin-order-complete { display: inline-block; padding: 6px 9px; border-radius: 8px; background: #e7f3eb; color: #286246; font-size: .72rem; font-weight: 800; }
+.admin-dashboard .admin-order-view { padding: 7px 11px; border: 1px solid #c9ded2; border-radius: 9px; background: #eef7f1; color: #245e40; cursor: pointer; font: inherit; font-size: .74rem; font-weight: 800; white-space: nowrap; }
+.admin-dashboard .admin-order-detail-modal { width: min(820px, 100%); }
+.admin-dashboard .admin-order-food-details { margin-top: 18px; }
+.admin-dashboard .admin-order-food-details h3 { margin: 0 0 10px; color: #204335; display: flex; align-items: center; gap: 7px; }
+.admin-dashboard .admin-order-food-details h3 svg { width: 16px; height: 16px; color: #397357; }
+.admin-dashboard .admin-order-food-details > div { display: grid; grid-template-columns: 1.2fr 1.2fr .55fr .7fr; gap: 8px; margin-top: 8px; padding: 11px; border: 1px solid #e0e9e3; border-radius: 11px; background: #f7faf8; }
+.admin-dashboard .admin-order-food-details span, .admin-dashboard .admin-order-food-details strong { display: block; }
+.admin-dashboard .admin-order-food-details span { margin-bottom: 4px; color: #718078; font-size: .68rem; text-transform: uppercase; }
+.admin-dashboard .admin-order-food-details span svg { width: 11px; height: 11px; margin-right: 3px; vertical-align: -1px; }
+.admin-dashboard .admin-order-food-details strong { color: #29483b; font-size: .82rem; overflow-wrap: anywhere; }
 
 .admin-dashboard .modal {
   position: fixed;

@@ -4,8 +4,9 @@ import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
 import App from "./App";
 
-axios.defaults.baseURL =
-  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+// Relative /api requests use the local proxy in development and same-origin
+// server routes in production. Cross-origin pages provide their own API URL.
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL || "";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

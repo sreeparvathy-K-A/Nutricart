@@ -20,6 +20,11 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    preparationInstructions: {
+      type: String,
+      default: "",
+      maxlength: 300,
+    },
     deliveryBoyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DeliveryBoy",
@@ -36,6 +41,15 @@ const orderSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Pending",
+    },
+    restaurantStatus: {
+      type: String,
+      enum: ["Pending", "Accepted", "Preparing", "Ready for Pickup"],
+      default: "Pending",
+    },
+    deliveredAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

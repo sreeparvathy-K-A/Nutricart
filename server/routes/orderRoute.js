@@ -15,6 +15,8 @@ import express from "express";
 import {
   placeOrder,
   getUserOrders,
+  getOwnerOrders,
+  updateRestaurantStatus,
   updateOrderStatus,
   getAllOrders,
   assignDeliveryBoy,
@@ -25,9 +27,11 @@ const router = express.Router();
 
 router.post("/place", placeOrder);
 router.get("/list", getAllOrders);
+router.get("/owner", getOwnerOrders);
 router.get("/user/:userId", getUserOrders);
 router.get("/delivery/:deliveryBoyId", getDeliveryOrders);
 router.put("/assign-delivery", assignDeliveryBoy);
 router.put("/status", updateOrderStatus);
+router.put("/restaurant-status", updateRestaurantStatus);
 
 export default router;

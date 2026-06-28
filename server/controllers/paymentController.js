@@ -71,6 +71,17 @@ export const createRazorpayOrder = async (req, res) => {
       return res.status(400).json({ message: "orderId and valid amount are required" });
     }
 
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      const demoOrder = {
+        id: `demo_order_${String(orderId).slice(-12)}`,
+        amount: Math.round(normalizedAmount * 100),
+        currency: "INR",
+      };
+
+      await Order.findByIdAndUpdate(orderId, { razorpayOrderId: demoOrder.id });
+      return res.status(201).json({ demo: true, order: demoOrder });
+    }
+
     const response = await createRazorpayOrderRequest({
       amount: normalizedAmount,
       receipt: `order_${String(orderId).slice(-12)}`,
@@ -107,7 +118,32 @@ export const verifyRazorpayPayment = async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
+      demo,
     } = req.body;
+
+    if (demo === true) {
+      if (!orderId || !userId || !amount || !razorpay_order_id || !razorpay_payment_id) {
+        return res.status(400).json({ message: "Missing demo payment details" });
+      }
+
+      const order = await Order.findById(orderId);
+      if (!order || order.razorpayOrderId !== razorpay_order_id || !razorpay_order_id.startsWith("demo_order_")) {
+        return res.status(400).json({ message: "Invalid demo payment order" });
+      }
+
+      const payment = new Payment({
+        orderId,
+        userId,
+        amount: Number(amount),
+        paymentMethod: "Razorpay Demo",
+        paymentStatus: "Paid (Demo)",
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        razorpaySignature: "demo",
+      });
+      await payment.save();
+      return res.status(200).json({ message: "Demo payment completed", payment, demo: true });
+    }
 
     if (
       !orderId ||

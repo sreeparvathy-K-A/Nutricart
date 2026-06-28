@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaPlusCircle, FaStore, FaUserCircle, FaUtensils } from "react-icons/fa";
+import { FaClipboardList, FaUtensils } from "react-icons/fa";
 import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
 function OwnerDashboard() {
   const navigate = useNavigate();
   const [foods, setFoods] = useState([]);
+  const [orders, setOrders] = useState([]);
 
   const storedUser = useMemo(() => {
     try {
@@ -70,26 +70,24 @@ function OwnerDashboard() {
     fetchOwnerFoods();
   }, [ownerEmail, ownerId, ownerName]);
 
-  const actions = [
-    {
-      title: "Add Food",
-      text: "Create a new menu item with image, price, category, calories, and protein.",
-      path: "/owner/add-food",
-      icon: FaPlusCircle,
-    },
-    {
-      title: "My Foods",
-      text: "View, update, replace images, or remove existing menu items.",
-      path: "/owner/my-foods",
-      icon: FaUtensils,
-    },
-    {
-      title: "Profile",
-      text: "Check your restaurant account details used across the platform.",
-      path: "/owner/profile",
-      icon: FaUserCircle,
-    },
-  ];
+  useEffect(() => {
+    if (!ownerId && !ownerEmail) return undefined;
+    let active = true;
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/orders/owner`, {
+          params: { ownerId, ownerEmail, ownerName: businessName },
+        });
+        if (active) setOrders(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.log("Owner orders error:", error.response?.data || error.message);
+        if (active) setOrders([]);
+      }
+    };
+    fetchOrders();
+    const timer = window.setInterval(fetchOrders, 30000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [businessName, ownerEmail, ownerId]);
 
   return (
     <div className="owner-dashboard">
@@ -108,59 +106,11 @@ function OwnerDashboard() {
           </div>
         </section>
 
-        <section className="owner-account-strip">
-          <div>
-            <FaStore />
-            <span>Restaurant</span>
-            <strong>{businessName}</strong>
-          </div>
-          <div>
-            <FaUserCircle />
-            <span>Owner Email</span>
-            <strong>{ownerEmail || "Not available"}</strong>
-          </div>
+        <section className="owner-count-grid">
+          <div><FaUtensils /><span>Total Foods</span><strong>{foods.length}</strong></div>
+          <div><FaClipboardList /><span>Total Orders</span><strong>{orders.length}</strong></div>
         </section>
 
-        <section className="owner-latest-panel">
-          <div className="panel-heading">
-            <div>
-              <p className="panel-kicker">Latest Item</p>
-              <h2>Recently Added Foods</h2>
-            </div>
-          </div>
-
-          {foods.length === 0 ? (
-            <div className="empty-inline">No food added yet.</div>
-          ) : (
-            <div className="owner-latest-list">
-              {foods.slice(0, 4).map((food) => (
-                <div className="owner-latest-row" key={food._id}>
-                  <strong>{food.name}</strong>
-                  <span>Rs. {food.price}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="owner-action-grid">
-          {actions.map((action) => {
-            const Icon = action.icon;
-
-            return (
-              <button
-                type="button"
-                className="owner-action-card"
-                key={action.title}
-                onClick={() => navigate(action.path)}
-              >
-                <Icon />
-                <span>{action.title}</span>
-                <p>{action.text}</p>
-              </button>
-            );
-          })}
-        </section>
       </main>
     </div>
   );

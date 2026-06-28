@@ -136,8 +136,7 @@
   white-space: nowrap;
 }
 
-.checkout-grid input,
-.payment-block select {
+.checkout-grid input {
   width: 100%;
   padding: 13px 14px;
   border: 1px solid #d9e3da;
@@ -164,45 +163,28 @@
   margin-top: 20px;
 }
 
-.payment-block h3 {
-  margin: 0 0 10px;
-  color: #1d4333;
-}
-
-.payment-note {
-  margin: 8px 0 0;
-  color: #8a5a18;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.upi-box {
-  margin-top: 12px;
-  padding: 14px;
+.preparation-block {
+  position: relative;
+  margin-top: 20px;
+  padding: 16px;
   border: 1px solid #d9e3da;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #f6faf7;
 }
 
-.upi-box p,
-.upi-box strong {
+.preparation-block label {
   display: block;
+  color: #1d4333;
+  font-weight: 700;
 }
 
-.upi-box p {
-  margin: 0;
-  color: #657569;
-  font-size: 0.86rem;
-}
-
-.upi-box strong {
-  margin-top: 4px;
-  color: #184734;
-}
-
-.upi-box input {
+.preparation-block label span,
+.preparation-block p,
+.preparation-block small { color: #657569; }
+.preparation-block p { margin: 5px 0 12px; font-size: .9rem; }
+.preparation-block textarea {
   width: 100%;
-  margin-top: 12px;
+  resize: vertical;
   padding: 13px 14px;
   border: 1px solid #d9e3da;
   border-radius: 14px;
@@ -210,6 +192,40 @@
   color: #1e382d;
   font: inherit;
 }
+.preparation-block small { display: block; margin-top: 5px; text-align: right; }
+
+.payment-block h3 {
+  margin: 0 0 10px;
+  color: #1d4333;
+}
+
+.payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.payment-options button {
+  padding: 15px;
+  border: 1px solid #d9e3da;
+  border-radius: 14px;
+  background: #fbfcfa;
+  color: #1e382d;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.payment-options button.selected {
+  border-color: #2e7655;
+  background: #eaf6ee;
+  box-shadow: 0 0 0 2px rgba(46, 118, 85, .12);
+}
+
+.payment-options strong,
+.payment-options span { display: block; }
+.payment-options strong { color: #184734; }
+.payment-options span { margin-top: 5px; color: #657569; font-size: .86rem; line-height: 1.4; }
 
 .checkout-summary-list {
   display: grid;
@@ -324,6 +340,8 @@
   .checkout-field-error {
     grid-column: auto;
   }
+
+  .payment-options { grid-template-columns: 1fr; }
 
   .checkout-item,
   .checkout-row {

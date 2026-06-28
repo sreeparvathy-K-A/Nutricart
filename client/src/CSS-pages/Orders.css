@@ -91,11 +91,57 @@
 
 .orders-list {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
+.order-confirmed-banner {
+  display: flex;
+  gap: 8px 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding: 16px 20px;
+  border: 1px solid #b9ddc5;
+  border-radius: 16px;
+  background: #eaf8ee;
+  color: #245b3d;
+}
+
+.order-card.new-order { border: 2px solid #72ad84; }
+
+.client-ready-notice { margin-top: 11px; padding: 11px 13px; border: 1px solid #bfe0ca; border-radius: 11px; background: #e8f7ed; color: #245f3f; font-size: .86rem; font-weight: 700; }
+
+.delivery-tracker {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 18px;
+  margin: 14px 0;
+  padding: 14px;
+  border-radius: 15px;
+  background: #f8fbf8;
+  border: 1px solid #e1ece3;
+}
+
+.delivery-estimate span,
+.delivery-estimate strong,
+.delivery-estimate small,
+.delivery-steps strong,
+.delivery-steps small { display: block; }
+.delivery-estimate span { color: #68796d; font-size: .74rem; font-weight: 700; text-transform: uppercase; }
+.delivery-estimate strong { margin: 3px 0; color: #174b35; font-size: 1rem; }
+.delivery-estimate .ordered-time { margin-top: 10px; }
+.delivery-estimate .ordered-time-value { font-size: .86rem; }
+.delivery-estimate small, .delivery-steps small { color: #718076; line-height: 1.4; }
+.delivery-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0; padding: 0; list-style: none; font-size: .88rem; }
+.delivery-steps li { position: relative; min-width: 0; color: #7b877f; }
+.delivery-steps li:not(:last-child)::after { content: ""; position: absolute; top: 14px; left: 32px; right: -4px; height: 3px; background: #dfe7e1; }
+.delivery-steps li.complete:not(:last-child)::after { background: #62a477; }
+.step-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 7px; border-radius: 50%; background: #dfe7e1; color: #647168; font-size: .72rem; font-weight: 800; }
+.delivery-steps li.complete .step-dot { background: #2f7c54; color: white; }
+.delivery-steps li.complete strong { color: #245f41; }
+
 .order-card {
-  padding: 22px;
+  padding: 17px;
 }
 
 .order-card-head,
@@ -109,7 +155,7 @@
 
 .order-card-head {
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 13px;
 }
 
 .order-id {
@@ -159,12 +205,12 @@
 
 .order-items {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .order-item-row {
-  padding: 14px;
-  border-radius: 16px;
+  padding: 11px 12px;
+  border-radius: 13px;
   background: #f6faf7;
   border: 1px solid #e1ece3;
 }
@@ -189,7 +235,7 @@
 }
 
 .order-summary-row {
-  margin-top: 16px;
+  margin-top: 11px;
   color: #5f7065;
   min-width: 0;
 }
@@ -203,7 +249,7 @@
 }
 
 .order-summary-row.total {
-  padding-top: 14px;
+  padding-top: 11px;
   border-top: 1px solid #e3e9e3;
   color: #1e4434;
 }
@@ -216,7 +262,7 @@
   .orders-hero,
   .orders-empty,
   .order-card {
-    padding: 20px;
+    padding: 16px;
   }
 
   .order-card-head,
@@ -224,4 +270,10 @@
   .order-summary-row {
     flex-direction: column;
   }
+
+  .delivery-tracker { grid-template-columns: 1fr; }
+  .delivery-steps { grid-template-columns: 1fr; gap: 10px; }
+  .delivery-steps li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; }
+  .delivery-steps li:not(:last-child)::after { top: 30px; bottom: -14px; left: 14px; right: auto; width: 3px; height: auto; }
+  .step-dot { margin: 0; }
 }

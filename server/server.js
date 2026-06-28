@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 import app from "./app.js";
 
-dotenv.config();
+dotenv.config({ path: fileURLToPath(new URL(".env", import.meta.url)) });
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;

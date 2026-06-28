@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaChartPie,
   FaPlusCircle,
+  FaClipboardList,
   FaSignOutAlt,
   FaStore,
   FaUserCircle,
@@ -26,6 +27,7 @@ function OwnerSidebar() {
 
   const navItems = [
     { label: "Dashboard", path: "/restaurant/dashboard", icon: FaChartPie },
+    { label: "Orders", path: "/owner/orders", icon: FaClipboardList },
     { label: "My Foods", path: "/owner/my-foods", icon: FaUtensils },
     { label: "Add Food", path: "/owner/add-food", icon: FaPlusCircle },
     { label: "Profile", path: "/owner/profile", icon: FaUserCircle },
@@ -44,7 +46,7 @@ function OwnerSidebar() {
         <span className="brand-badge"><FaStore /></span>
         <div>
           <p className="brand-kicker">Nutricart</p>
-          <h2>Owner Panel</h2>
+          <h2>Restaurant Panel</h2>
         </div>
       </div>
 

@@ -3,19 +3,22 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS-pages/Checkout.css";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+// Uses the CRA proxy locally and the same-origin /api server when deployed.
+// Set REACT_APP_API_BASE_URL only when the API is hosted on another domain.
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
 const initialForm = {
   fullName: "",
   phone: "",
   alternatePhone: "",
   addressLine: "",
+  landmark: "",
+  location: "",
   city: "",
   state: "",
   pincode: "",
-  upiReference: "",
   paymentMethod: "Cash on Delivery",
+  preparationInstructions: "",
 };
 
 const buildCheckoutFormFromUser = (user) => {
@@ -32,6 +35,8 @@ const buildCheckoutFormFromUser = (user) => {
     alternatePhone: "",
     addressLine:
       typeof address === "string" ? addressParts[0] || "" : address.street || "",
+    landmark: typeof address === "string" ? "" : address.landmark || "",
+    location: typeof address === "string" ? "" : address.location || address.area || "",
     city: typeof address === "string" ? addressParts[1] || "" : address.city || "",
     state: typeof address === "string" ? addressParts[2] || "" : address.state || "",
     pincode:
@@ -55,8 +60,6 @@ const loadRazorpayScript = () =>
     document.body.appendChild(script);
   });
 
-const UPI_ID = process.env.REACT_APP_UPI_ID || "nutricart@upi";
-
 function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,7 +69,6 @@ function Checkout() {
   const [phoneError, setPhoneError] = useState("");
   const [alternatePhoneError, setAlternatePhoneError] = useState("");
   const [pincodeError, setPincodeError] = useState("");
-  const [razorpayEnabled, setRazorpayEnabled] = useState(false);
 
   const storedUser = useMemo(() => {
     try {
@@ -87,20 +89,6 @@ function Checkout() {
     setForm(buildCheckoutFormFromUser(storedUser));
   }, [storedUser]);
 
-  useEffect(() => {
-    const fetchPaymentConfig = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/payments/config`);
-        setRazorpayEnabled(Boolean(response.data?.razorpayEnabled));
-      } catch (error) {
-        console.log("Payment config error:", error.response?.data || error.message);
-        setRazorpayEnabled(false);
-      }
-    };
-
-    fetchPaymentConfig();
-  }, []);
-
   const totalQuantity = useMemo(
     () => cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
     [cartItems]
@@ -111,6 +99,8 @@ function Checkout() {
     form.phone,
     form.alternatePhone ? `Alt: ${form.alternatePhone}` : "",
     form.addressLine,
+    form.landmark ? `Near ${form.landmark}` : "",
+    form.location,
     form.city,
     `${form.state} - ${form.pincode}`,
   ]
@@ -180,6 +170,7 @@ function Checkout() {
       !form.fullName ||
       !form.phone ||
       !form.addressLine ||
+      (useDifferentAddress && !form.location) ||
       !form.city ||
       !form.state ||
       !form.pincode
@@ -206,17 +197,6 @@ function Checkout() {
       return;
     }
 
-    if (form.paymentMethod === "Razorpay" && !razorpayEnabled) {
-      alert("Razorpay payment is not available right now. Please choose Cash on Delivery or UPI.");
-      setForm((prev) => ({ ...prev, paymentMethod: "Cash on Delivery" }));
-      return;
-    }
-
-    if (form.paymentMethod === "UPI" && !form.upiReference.trim()) {
-      alert("Please enter the UPI transaction/reference ID");
-      return;
-    }
-
     try {
       setIsSubmitting(true);
 
@@ -228,6 +208,7 @@ function Checkout() {
         })),
         totalAmount,
         address,
+        preparationInstructions: form.preparationInstructions.trim(),
       };
 
       const orderResponse = await axios.post(`${API_BASE_URL}/api/orders/place`, orderPayload);
@@ -237,22 +218,16 @@ function Checkout() {
         throw new Error("Order was created without an order id");
       }
 
-      if (form.paymentMethod === "Cash on Delivery" || form.paymentMethod === "UPI") {
+      if (form.paymentMethod === "Cash on Delivery") {
         await axios.post(`${API_BASE_URL}/api/payments/add`, {
           orderId,
           userId: storedUser.id,
           amount: totalAmount,
           paymentMethod: form.paymentMethod,
-          paymentStatus: form.paymentMethod === "UPI" ? "Pending Verification" : "Pending",
-          transactionId: form.upiReference.trim(),
+          paymentStatus: "Pending",
+          transactionId: "",
         });
       } else {
-        const scriptLoaded = await loadRazorpayScript();
-
-        if (!scriptLoaded) {
-          throw new Error("Unable to load Razorpay checkout");
-        }
-
         const razorpayOrderResponse = await axios.post(
           `${API_BASE_URL}/api/payments/razorpay/order`,
           {
@@ -261,9 +236,31 @@ function Checkout() {
           }
         );
 
-        const { keyId, order } = razorpayOrderResponse.data;
+        const { demo, keyId, order } = razorpayOrderResponse.data;
 
-        await new Promise((resolve, reject) => {
+        if (demo) {
+          const approved = window.confirm(
+            `Razorpay Demo Payment\n\nAmount: Rs. ${totalAmount}\n\nThis is a simulated payment for project demonstration. Continue?`
+          );
+          if (!approved) throw new Error("Demo payment cancelled");
+
+          await axios.post(`${API_BASE_URL}/api/payments/razorpay/verify`, {
+            orderId,
+            userId: storedUser.id,
+            amount: totalAmount,
+            paymentMethod: "Razorpay Demo",
+            razorpay_order_id: order.id,
+            razorpay_payment_id: `demo_pay_${Date.now()}`,
+            demo: true,
+          });
+        } else {
+          const scriptLoaded = await loadRazorpayScript();
+
+          if (!scriptLoaded) {
+            throw new Error("Unable to load Razorpay checkout");
+          }
+
+          await new Promise((resolve, reject) => {
           const razorpay = new window.Razorpay({
             key: keyId,
             amount: order.amount,
@@ -304,7 +301,8 @@ function Checkout() {
           });
 
           razorpay.open();
-        });
+          });
+        }
       }
 
       await axios.delete(`${API_BASE_URL}/api/carts/clear/${storedUser.id}`);
@@ -312,12 +310,10 @@ function Checkout() {
       const successMessage =
         form.paymentMethod === "Cash on Delivery"
           ? "Order placed successfully"
-          : form.paymentMethod === "UPI"
-            ? "Order placed. UPI payment is pending verification"
-            : "Razorpay payment successful and order placed";
+          : "Razorpay payment successful and order placed";
 
       alert(successMessage);
-      navigate("/client-dashboard");
+      navigate("/orders", { state: { confirmedOrderId: orderId } });
     } catch (error) {
       console.log("Checkout error:", error.response?.data || error.message);
       alert(error.response?.data?.message || error.message || "Unable to place order");
@@ -425,11 +421,25 @@ function Checkout() {
               {alternatePhoneError ? (
                 <p className="checkout-field-error">{alternatePhoneError}</p>
               ) : null}
+                  <input
+                    name="addressLine"
+                    value={form.addressLine}
+                    onChange={handleChange}
+                    placeholder="Street address"
+                    disabled={!useDifferentAddress}
+                  />
               <input
-                name="addressLine"
-                value={form.addressLine}
+                name="landmark"
+                value={form.landmark}
                 onChange={handleChange}
-                placeholder="Address"
+                placeholder="Landmark (optional)"
+                disabled={!useDifferentAddress}
+              />
+              <input
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                placeholder="Location / Area"
                 disabled={!useDifferentAddress}
               />
               <input
@@ -458,32 +468,41 @@ function Checkout() {
               {pincodeError ? <p className="checkout-field-error">{pincodeError}</p> : null}
             </div>
 
+            <div className="preparation-block">
+              <label htmlFor="preparationInstructions">Meal preparation suggestion <span>(optional)</span></label>
+              <p>Tell the kitchen how you would like your meal prepared.</p>
+              <textarea
+                id="preparationInstructions"
+                name="preparationInstructions"
+                value={form.preparationInstructions}
+                onChange={handleChange}
+                maxLength="300"
+                rows="4"
+                placeholder="For example: less spicy, dressing on the side, no onion, or add cutlery"
+              />
+              <small>{form.preparationInstructions.length}/300</small>
+            </div>
+
             <div className="payment-block">
               <h3>Payment method</h3>
-              <select
-                name="paymentMethod"
-                value={form.paymentMethod}
-                onChange={handleChange}
-              >
-                <option value="Cash on Delivery">Cash on Delivery</option>
-                <option value="UPI">UPI - Manual Reference</option>
-                <option value="Razorpay" disabled={!razorpayEnabled}>Razorpay - Online Payment</option>
-              </select>
-              {form.paymentMethod === "UPI" ? (
-                <div className="upi-box">
-                  <p>Manual UPI payment</p>
-                  <strong>{UPI_ID}</strong>
-                  <input
-                    name="upiReference"
-                    value={form.upiReference}
-                    onChange={handleChange}
-                    placeholder="UPI transaction/reference ID"
-                  />
-                </div>
-              ) : null}
-              {!razorpayEnabled ? (
-                <p className="payment-note">Razorpay online payment is unavailable. Manual UPI and Cash on Delivery are available.</p>
-              ) : null}
+              <div className="payment-options" role="group" aria-label="Payment method">
+                <button
+                  type="button"
+                  className={form.paymentMethod === "Cash on Delivery" ? "selected" : ""}
+                  onClick={() => setForm((prev) => ({ ...prev, paymentMethod: "Cash on Delivery" }))}
+                >
+                  <strong>Cash on Delivery</strong>
+                  <span>Pay when your meal arrives</span>
+                </button>
+                <button
+                  type="button"
+                  className={form.paymentMethod === "Razorpay" ? "selected" : ""}
+                  onClick={() => setForm((prev) => ({ ...prev, paymentMethod: "Razorpay" }))}
+                >
+                  <strong>Pay with Razorpay</strong>
+                  <span>UPI, card, netbanking or wallet</span>
+                </button>
+              </div>
             </div>
           </section>
 

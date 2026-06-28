@@ -131,6 +131,7 @@ import Menu from "./pages/Menu";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientDashboard from "./pages/ClientDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import OwnerOrders from "./pages/OwnerOrders";
 import AddFood from "./pages/AddFood";
 import OwnerMyFood from "./pages/MyFood";
 import OwnerProfile from "./pages/OwnerProfile";
@@ -219,6 +220,10 @@ function App() {
           }
         />
         <Route path="/owner" element={<Navigate to="/restaurant/dashboard" replace />} />
+        <Route
+          path="/owner/orders"
+          element={role === "owner" ? <OwnerOrders /> : <Navigate to="/restaurant/login" />}
+        />
         <Route
           path="/delivery/dashboard"
           element={

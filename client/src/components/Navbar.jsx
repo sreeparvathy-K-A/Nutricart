@@ -67,14 +67,20 @@ function Navbar() {
           <Link to="/" className="nav-item">
             Home
           </Link>
-          <Link to="/menu" className="nav-item">
-            Food Items
-          </Link>
-          
-          <Link to="/cart" className="nav-icon-link nav-cart-link" aria-label="Cart">
-            <FaShoppingCart />
-            <span>Cart</span>
-          </Link>
+
+          {role === "owner" ? (
+            <Link to="/restaurant/dashboard" className="nav-item">
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/menu" className="nav-item">Food Items</Link>
+              <Link to="/cart" className="nav-icon-link nav-cart-link" aria-label="Cart">
+                <FaShoppingCart />
+                <span>Cart</span>
+              </Link>
+            </>
+          )}
 
           {showGuestNav ? (
             <div className="dropdown auth-dropdown">
@@ -103,7 +109,7 @@ function Navbar() {
                 </li>
               </ul>
             </div>
-          ) : (
+          ) : role !== "owner" ? (
             <div className="dropdown profile-dropdown">
               <button
                 type="button"
@@ -130,7 +136,7 @@ function Navbar() {
                 ))}
               </ul>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>

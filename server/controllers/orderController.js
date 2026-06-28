@@ -36,7 +36,7 @@ const enrichOrdersWithClientDetails = async (orders) => {
 
 export const placeOrder = async (req, res) => {
   try {
-    const { userId, items, totalAmount, address } = req.body;
+    const { userId, items, totalAmount, address, preparationInstructions } = req.body;
     const normalizedAddress = String(address || "").trim();
     const validItems = Array.isArray(items)
       ? items.filter((item) => item?.foodId && Number(item?.quantity || 0) > 0)
@@ -51,6 +51,7 @@ export const placeOrder = async (req, res) => {
       items: validItems,
       totalAmount,
       address: normalizedAddress,
+      preparationInstructions: String(preparationInstructions || "").trim().slice(0, 300),
       status: "Pending",
     });
 
@@ -81,6 +82,51 @@ export const getUserOrders = async (req, res) => {
   } catch (error) {
     console.error("Get orders error:", error);
     res.status(500).json({ message: "Error fetching orders" });
+  }
+};
+
+export const getOwnerOrders = async (req, res) => {
+  try {
+    const ownerId = String(req.query.ownerId || "").trim();
+    const ownerEmail = String(req.query.ownerEmail || "").trim().toLowerCase();
+    const ownerName = String(req.query.ownerName || "").trim().toLowerCase();
+
+    if (!ownerId && !ownerEmail && !ownerName) {
+      return res.status(400).json({ message: "Owner details are required" });
+    }
+
+    const orders = await Order.find({})
+      .populate("items.foodId")
+      .populate("deliveryBoyId", "name phone vehicleType")
+      .sort({ createdAt: -1 });
+
+    const ownerOrders = orders.reduce((result, order) => {
+      const plainOrder = order.toObject();
+      const ownerItems = plainOrder.items.filter(({ foodId }) => {
+        if (!foodId) return false;
+        return (ownerId && String(foodId.ownerId) === ownerId) ||
+          (ownerEmail && String(foodId.ownerEmail || "").toLowerCase() === ownerEmail) ||
+          (ownerName && String(foodId.hotelName || "").toLowerCase() === ownerName);
+      });
+
+      if (ownerItems.length) {
+        result.push({
+          ...plainOrder,
+          items: ownerItems,
+          ownerTotalAmount: ownerItems.reduce(
+            (sum, item) => sum + Number(item.foodId?.price || 0) * Number(item.quantity || 0),
+            0
+          ),
+        });
+      }
+      return result;
+    }, []);
+
+    const enrichedOrders = await enrichOrdersWithClientDetails(ownerOrders);
+    res.status(200).json(enrichedOrders);
+  } catch (error) {
+    console.error("Get owner orders error:", error);
+    res.status(500).json({ message: "Error fetching owner orders" });
   }
 };
 
@@ -174,11 +220,31 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ message: "orderId and status required" });
     }
 
-    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
-
-    if (!order) {
+    const currentOrder = await Order.findById(orderId);
+    if (!currentOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
+
+    const allowedTransitions = {
+      Pending: ["Collected"],
+      Assigned: ["Collected"],
+      Accepted: ["Collected"],
+      Collected: ["Out for Delivery"],
+      "Out for Delivery": ["Delivered"],
+    };
+    const allowedNext = allowedTransitions[currentOrder.status] || [];
+    if (!allowedNext.includes(status)) {
+      return res.status(400).json({
+        message: `Order must follow the delivery sequence. Current status: ${currentOrder.status}`,
+      });
+    }
+
+    const update = { status };
+    if (String(status).toLowerCase() === "delivered") {
+      update.deliveredAt = new Date();
+    }
+
+    const order = await Order.findByIdAndUpdate(orderId, update, { new: true });
 
     res.status(200).json({
       message: "Order status updated",
@@ -187,5 +253,28 @@ export const updateOrderStatus = async (req, res) => {
   } catch (error) {
     console.error("Update order status error:", error);
     res.status(500).json({ message: "Error updating order status" });
+  }
+};
+
+export const updateRestaurantStatus = async (req, res) => {
+  try {
+    const { orderId, restaurantStatus } = req.body || {};
+    const transitions = {
+      Pending: "Accepted",
+      Accepted: "Preparing",
+      Preparing: "Ready for Pickup",
+    };
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    const current = order.restaurantStatus || "Pending";
+    if (transitions[current] !== restaurantStatus) {
+      return res.status(400).json({ message: `Next restaurant status must be ${transitions[current] || "complete"}` });
+    }
+    order.restaurantStatus = restaurantStatus;
+    await order.save();
+    res.status(200).json({ message: "Restaurant status updated", order });
+  } catch (error) {
+    console.error("Restaurant status error:", error);
+    res.status(500).json({ message: "Unable to update restaurant status" });
   }
 };
