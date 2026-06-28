@@ -52,7 +52,7 @@ function Home() {
         <div className="home-shell hero-shell">
           <div className="hero-copy">
             <p className="hero-tag">Healthy food delivery</p>
-            <h1>Order balanced, nutritious meals from trusted local restaurants in just a few clicks.</h1>
+            <h1>Order balanced, nutritious meals from trusted restaurants in just a few clicks.</h1>
             <p className="hero-subtext">
               Search fresh bowls, smoothies, salads, and protein-rich meals from
               NutriCart restaurant partners.
