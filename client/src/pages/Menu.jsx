@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaCartPlus, FaMagnifyingGlass, FaStar, FaXmark } from "react-icons/fa6";
+import { FaArrowLeft, FaCartPlus, FaLocationDot, FaMagnifyingGlass, FaStar, FaXmark } from "react-icons/fa6";
 import "../CSS-pages/Menu.css";
 import menuImg from "../assets/images/menuimg.jpg";
 
@@ -44,6 +44,9 @@ function Menu() {
   const [foods, setFoods] = useState([]);
   const [searchInput, setSearchInput] = useState(initialSearch);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [locationInput, setLocationInput] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
+  const [availableOnly, setAvailableOnly] = useState(true);
   const [quantities, setQuantities] = useState({});
   const [selectedFood, setSelectedFood] = useState(null);
   const navigate = useNavigate();
@@ -78,12 +81,14 @@ function Menu() {
   const filteredFoods = useMemo(() => {
     const normalizedCategory = selectedCategory.trim().toLowerCase();
     const normalizedSearch = searchQuery.trim().toLowerCase();
+    const normalizedLocation = locationQuery.trim().toLowerCase();
 
     return foods.filter((item) => {
       const category = item.category?.trim().toLowerCase() || "";
       const name = item.name?.trim().toLowerCase() || "";
       const description = item.description?.trim().toLowerCase() || "";
       const hotelName = item.hotelName?.trim().toLowerCase() || "";
+      const foodLocation = item.location?.trim().toLowerCase() || "";
 
       const matchesCategory = !normalizedCategory ||
         category.includes(normalizedCategory) ||
@@ -96,17 +101,24 @@ function Menu() {
         category.includes(normalizedSearch) ||
         hotelName.includes(normalizedSearch);
 
-      return matchesCategory && matchesSearch;
+      const matchesLocation = !normalizedLocation || foodLocation.includes(normalizedLocation);
+      const matchesAvailability = !availableOnly || item.isAvailable !== false;
+
+      return matchesCategory && matchesSearch && matchesLocation && matchesAvailability;
     });
-  }, [foods, searchQuery, selectedCategory]);
+  }, [availableOnly, foods, locationQuery, searchQuery, selectedCategory]);
 
   const handleSearch = () => {
     setSearchQuery(searchInput.trim());
+    setLocationQuery(locationInput.trim());
   };
 
   const clearAllFilters = () => {
     setSearchInput("");
     setSearchQuery("");
+    setLocationInput("");
+    setLocationQuery("");
+    setAvailableOnly(true);
     navigate("/menu");
   };
 
@@ -175,26 +187,49 @@ function Menu() {
                     handleSearch();
                   }
                 }}
-                placeholder="Search food items"
+                placeholder="Search food item or restaurant"
               />
               <button type="button" className="menu-search-btn" onClick={handleSearch}>
                 Search
               </button>
+            </div>
+            <div className="menu-location-tools">
+              <label className="menu-location-input">
+                <FaLocationDot />
+                <input
+                  type="text"
+                  value={locationInput}
+                  onChange={(event) => setLocationInput(event.target.value)}
+                  onKeyDown={(event) => event.key === "Enter" && handleSearch()}
+                  placeholder="City, area, or pincode"
+                  aria-label="Food location"
+                />
+              </label>
+              <label className="menu-available-toggle">
+                <input
+                  type="checkbox"
+                  checked={availableOnly}
+                  onChange={(event) => setAvailableOnly(event.target.checked)}
+                />
+                Available now
+              </label>
             </div>
           </div>
 
           <div className="menu-stats">
             <span>{filteredFoods.length} items</span>
             <span>{selectedCategory || "All categories"}</span>
-            <span>{searchQuery || "All foods"}</span>
+            <span>{locationQuery || "All locations"}</span>
           </div>
         </div>
       </section>
 
-      {selectedCategory || searchQuery ? (
+      {selectedCategory || searchQuery || locationQuery ? (
         <div className="menu-filter-bar">
           <p>
-            {selectedCategory && searchQuery ? (
+            {locationQuery ? (
+              <>Showing available food near <strong>{locationQuery}</strong>{searchQuery ? <> matching <strong>{searchQuery}</strong></> : null}</>
+            ) : selectedCategory && searchQuery ? (
               <>Showing foods for <strong>{selectedCategory}</strong> matching <strong>{searchQuery}</strong></>
             ) : selectedCategory ? (
               <>Showing foods for <strong>{selectedCategory}</strong></>
@@ -211,8 +246,8 @@ function Menu() {
       <div className="menu-grid">
         {filteredFoods.length === 0 ? (
           <p className="menu-empty">
-            {selectedCategory || searchQuery
-              ? `No foods found${selectedCategory ? ` for ${selectedCategory}` : ""}${searchQuery ? ` matching "${searchQuery}"` : ""}.`
+            {selectedCategory || searchQuery || locationQuery
+              ? `No ${availableOnly ? "available " : ""}foods found${selectedCategory ? ` for ${selectedCategory}` : ""}${searchQuery ? ` matching "${searchQuery}"` : ""}${locationQuery ? ` near "${locationQuery}"` : ""}.`
               : "No food available"}
           </p>
         ) : (

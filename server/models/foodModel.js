@@ -14,6 +14,7 @@ const foodSchema = new mongoose.Schema(
     ownerEmail: { type: String, default: "", trim: true },
     hotelName: { type: String, required: true, trim: true },
     location: { type: String, default: "", trim: true },
+    isAvailable: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
