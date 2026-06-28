@@ -17,6 +17,7 @@ const buildUserPayload = (user, role) => {
     email: user.email,
     role,
     phone: user.phone || "",
+    profileImage: user.profileImage || "",
     hotel,
     address,
     businessName: user.businessName || "",

@@ -2,6 +2,12 @@ import Payment from "../models/paymentModel.js";
 import Order from "../models/orderModel.js";
 import crypto from "crypto";
 
+export const getPaymentConfig = (req, res) => {
+  res.status(200).json({
+    razorpayEnabled: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET),
+  });
+};
+
 const createRazorpayOrderRequest = ({ amount, currency = "INR", receipt }) => {
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -32,7 +38,7 @@ const createRazorpayOrderRequest = ({ amount, currency = "INR", receipt }) => {
 // Add payment
 export const addPayment = async (req, res) => {
   try {
-    const { orderId, userId, amount, paymentMethod, paymentStatus } = req.body;
+    const { orderId, userId, amount, paymentMethod, paymentStatus, transactionId } = req.body;
     const normalizedAmount = Number(amount);
 
     if (!orderId || !userId || !normalizedAmount || normalizedAmount < 1 || !paymentMethod) {
@@ -45,6 +51,7 @@ export const addPayment = async (req, res) => {
       amount: normalizedAmount,
       paymentMethod,
       paymentStatus: paymentStatus || "Pending",
+      transactionId: transactionId || "",
     });
 
     await payment.save();
@@ -85,7 +92,8 @@ export const createRazorpayOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Create Razorpay order error:", error);
-    res.status(500).json({ message: error.message || "Error creating Razorpay order" });
+    const statusCode = error.message === "Razorpay keys are not configured" ? 503 : 500;
+    res.status(statusCode).json({ message: error.message || "Error creating Razorpay order" });
   }
 };
 

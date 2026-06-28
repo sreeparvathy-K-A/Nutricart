@@ -4,6 +4,9 @@ import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 import "../CSS-pages/AddFood.css";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+
 const initialFormState = {
   name: "",
   description: "",
@@ -13,6 +16,24 @@ const initialFormState = {
   protein: "",
   rating: "",
 };
+
+const foodCategories = [
+  "Healthy Meal",
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Salad",
+  "Smoothie",
+  "Protein Bowl",
+  "Vegan",
+  "Weight Loss",
+  "Muscle Gain",
+  "Low Calorie",
+  "Diabetic Friendly",
+  "Gluten Free",
+  "Snacks",
+  "Drinks",
+];
 
 const AddFood = () => {
   const [formData, setFormData] = useState(initialFormState);
@@ -71,7 +92,7 @@ const AddFood = () => {
     try {
       setIsSubmitting(true);
 
-      const response = await axios.post("/api/foods/add", data, {
+      const response = await axios.post(`${API_BASE_URL}/api/foods/add`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -147,12 +168,18 @@ const AddFood = () => {
 
             <label className="field">
               <span>Category</span>
-              <input
+              <select
                 name="category"
                 value={formData.category}
-                placeholder="Healthy meal"
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select category</option>
+                {foodCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="field">

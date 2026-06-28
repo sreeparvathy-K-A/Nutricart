@@ -5,6 +5,7 @@ const clientSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   password: { type: String, required: true },
+  profileImage: { type: String, default: "" },
   dob: { type: Date },
   address: {
     street: { type: String },

@@ -1,10 +1,42 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FaArrowLeft, FaCartPlus, FaMagnifyingGlass, FaStar } from "react-icons/fa6";
 import "../CSS-pages/Menu.css";
+import menuImg from "../assets/images/menuimg.jpg";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+
+const getFoodImageUrl = (image) => {
+  if (!image) return menuImg;
+
+  const normalizedImage = String(image).replace(/\\/g, "/");
+
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/uploads\//i.test(normalizedImage)) {
+    const uploadPath = new URL(normalizedImage).pathname;
+    return encodeURI(`${API_BASE_URL}${uploadPath}`);
+  }
+
+  if (/^https?:\/\//i.test(normalizedImage) || normalizedImage.startsWith("data:")) {
+    return normalizedImage;
+  }
+
+  if (normalizedImage.startsWith("/uploads")) {
+    return encodeURI(`${API_BASE_URL}${normalizedImage}`);
+  }
+
+  if (normalizedImage.startsWith("uploads/")) {
+    return encodeURI(`${API_BASE_URL}/${normalizedImage}`);
+  }
+
+  const uploadsIndex = normalizedImage.indexOf("uploads/");
+  if (uploadsIndex >= 0) {
+    return encodeURI(`${API_BASE_URL}/${normalizedImage.slice(uploadsIndex)}`);
+  }
+
+  return encodeURI(normalizedImage);
+};
 
 function Menu() {
   const location = useLocation();
@@ -28,7 +60,7 @@ function Menu() {
 
   const fetchFoods = async () => {
     try {
-      const res = await axios.get("/api/foods/list");
+      const res = await axios.get(`${API_BASE_URL}/api/foods/list`);
       const foodData = res.data?.foods || res.data || [];
 
       if (Array.isArray(foodData)) {
@@ -100,7 +132,7 @@ function Menu() {
     }
 
     try {
-      const response = await axios.post("/api/carts/add", {
+      const response = await axios.post(`${API_BASE_URL}/api/carts/add`, {
         userId: storedUser.id,
         foodId,
         quantity,
@@ -119,7 +151,7 @@ function Menu() {
       <section className="menu-hero">
         <div className="menu-hero-top">
           <button type="button" className="menu-back-btn" onClick={() => navigate(-1)}>
-            Back
+            <FaArrowLeft /> Back
           </button>
         </div>
 
@@ -132,6 +164,7 @@ function Menu() {
             </p>
 
             <div className="menu-search-bar">
+              <FaMagnifyingGlass />
               <input
                 type="text"
                 value={searchInput}
@@ -184,9 +217,7 @@ function Menu() {
         ) : (
           filteredFoods.map((item) => {
             const isAvailable = item.isAvailable !== false;
-            const imageUrl = item.image?.startsWith("/uploads")
-              ? `${API_BASE_URL}${item.image}`
-              : item.image;
+            const imageUrl = getFoodImageUrl(item.image);
 
             return (
               <div className="food-card" key={item._id}>
@@ -195,7 +226,7 @@ function Menu() {
                     src={imageUrl}
                     alt={item.name}
                     onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/150";
+                      e.currentTarget.src = menuImg;
                     }}
                   />
                   <span className={`availability-badge ${isAvailable ? "live" : "off"}`}>
@@ -222,7 +253,7 @@ function Menu() {
                   </div>
 
                   <div className="food-card-footer">
-                    <p className="rating">{getRatingLabel(item.rating)}</p>
+                    <p className="rating"><FaStar /> {getRatingLabel(item.rating)}</p>
                     <div className="menu-cart-actions">
                       <div className="menu-qty-control" aria-label={`Quantity for ${item.name}`}>
                         <button
@@ -248,7 +279,7 @@ function Menu() {
                         onClick={() => handleAddToCart(item._id)}
                         disabled={!isAvailable}
                       >
-                        {isAvailable ? "Add to Cart" : "Unavailable"}
+                        {isAvailable ? <><FaCartPlus /> Add</> : "Unavailable"}
                       </button>
                     </div>
                   </div>

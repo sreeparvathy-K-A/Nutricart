@@ -18,7 +18,7 @@ Nutricart is a full-stack food ordering and management application built with Re
 - Backend: Node.js, Express, Mongoose
 - Database: MongoDB
 - Authentication: JWT-based backend auth flow
-- Uploads: Multer file uploads
+- Uploads: Multer file uploads with Cloudinary storage for food images
 - Payments: Cash on Delivery and Razorpay checkout for UPI/Card
 
 ## Project Structure
@@ -57,7 +57,7 @@ cd server
 npm install
 ```
 
-Create a `.env` file inside `server/` using `server/.env.example` as a guide:
+Create a `.env` file inside `server/`:
 
 ```env
 PORT=5000
@@ -65,6 +65,9 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+CLOUDINARY_CLOUD_NAME=dka5hchue
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
 Start the backend:
@@ -128,6 +131,9 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+CLOUDINARY_CLOUD_NAME=dka5hchue
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
 Do not commit real `.env` files to GitHub.

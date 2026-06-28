@@ -60,6 +60,32 @@
   cursor: pointer;
 }
 
+.nav-icon-link {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 13px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #f6f2ea;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.nav-icon-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.nav-cart-link span {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.18);
 }
@@ -202,6 +228,16 @@
   .nav-item {
     padding: 8px 9px;
     font-size: 0.82rem;
+  }
+
+  .nav-icon-link {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 10px;
+  }
+
+  .nav-cart-link span {
+    display: none;
   }
 
   .account-icon-btn {

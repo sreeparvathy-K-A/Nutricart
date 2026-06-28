@@ -1,5 +1,35 @@
 import Food from "../models/foodModel.js";
 import Owner from "../models/ownerModel.js";
+import cloudinary from "../config/cloudinary.js";
+
+const uploadFoodImage = async (file) => {
+  if (
+    !process.env.CLOUDINARY_CLOUD_NAME ||
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET
+  ) {
+    throw new Error("Cloudinary is not configured");
+  }
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "nutricart/foods",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result.secure_url);
+      }
+    );
+
+    uploadStream.end(file.buffer);
+  });
+};
 
 const enrichFoodsWithOwnerDetails = async (foods) => {
   const ownerEmails = [...new Set(foods.map((food) => food.ownerEmail).filter(Boolean))];
@@ -71,6 +101,8 @@ export const addFood = async (req, res) => {
       return res.status(400).json({ message: "Owner name is required" });
     }
 
+    const imageUrl = await uploadFoodImage(req.file);
+
     const food = new Food({
       name,
       description,
@@ -79,7 +111,7 @@ export const addFood = async (req, res) => {
       calories: calories ? Number(calories) : 0,
       protein: protein ? Number(protein) : 0,
       rating: rating ? Number(rating) : 0,
-      image: `/uploads/${req.file.filename}`,
+      image: imageUrl,
       ownerId: ownerId || "",
       ownerEmail: ownerEmail || "",
       hotelName,
@@ -180,7 +212,7 @@ export const updateFood = async (req, res) => {
     };
 
     if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+      updateData.image = await uploadFoodImage(req.file);
     }
 
     const food = await Food.findByIdAndUpdate(id, updateData, { new: true });

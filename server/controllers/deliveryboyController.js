@@ -1,5 +1,35 @@
 import DeliveryBoy from "../models/deliveryboyModel.js";
 import bcrypt from "bcryptjs";
+import cloudinary from "../config/cloudinary.js";
+
+const uploadDeliveryPhoto = async (file) => {
+  if (
+    !process.env.CLOUDINARY_CLOUD_NAME ||
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET
+  ) {
+    throw new Error("Cloudinary is not configured");
+  }
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "nutricart/delivery/photos",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result.secure_url);
+      }
+    );
+
+    uploadStream.end(file.buffer);
+  });
+};
 
 export const registerDeliveryBoy = async (req, res) => {
   try {
@@ -27,6 +57,7 @@ export const registerDeliveryBoy = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const photoUrl = await uploadDeliveryPhoto(req.file);
 
     const deliveryBoy = new DeliveryBoy({
       name,
@@ -37,7 +68,7 @@ export const registerDeliveryBoy = async (req, res) => {
       vehicleType,
       vehicleNumber,
       licenseNumber,
-      photo: req.file.filename,
+      photo: photoUrl,
       status: "pending",
       availability: "available",
       isApproved: false,

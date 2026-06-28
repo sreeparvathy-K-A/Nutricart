@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaArrowRight, FaBowlFood, FaCartShopping, FaLeaf, FaMagnifyingGlass, FaStore } from "react-icons/fa6";
 import "../CSS-pages/Home.css";
 import heroImg from "../assets/images/background.jpg";
 
 function Home() {
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
   const categories = [
     {
@@ -38,24 +40,37 @@ function Home() {
     navigate(`/menu?search=${encodeURIComponent(category.searchTerm || category.name)}`);
   };
 
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const query = search.trim();
+    navigate(query ? `/menu?search=${encodeURIComponent(query)}` : "/menu");
+  };
+
   return (
     <div className="home-page">
       <section className="home-hero" style={{ backgroundImage: `url(${heroImg})` }}>
         <div className="home-shell hero-shell">
           <div className="hero-copy">
-            <p className="hero-tag">Healthy food ordering</p>
-            <h1>Nutricart makes healthy food feel fresh, easy, and worth choosing</h1>
+            <p className="hero-tag">Healthy food delivery</p>
+            <h1>Order balanced meals from local restaurants in a few clicks.</h1>
             <p className="hero-subtext">
-              Discover bowls, smoothies, salads, and balanced meals designed to
-              attract customers with clean presentation and feel-good food.
+              Search fresh bowls, smoothies, salads, and protein-rich meals from
+              NutriCart restaurant partners.
             </p>
+            <form className="home-search" onSubmit={handleSearch}>
+              <FaMagnifyingGlass />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search salad, bowl, smoothie..."
+              />
+              <button type="submit">Search</button>
+            </form>
             <div className="hero-actions">
               <button type="button" onClick={() => navigate("/menu")}>
-                Explore Menu
+                <FaBowlFood /> Explore Menu
               </button>
-              <button type="button" className="hero-secondary" onClick={() => navigate("/restaurant/register-request")}>
-                Register Business
-              </button>
+             
             </div>
           </div>
         </div>
@@ -64,7 +79,7 @@ function Home() {
       <section className="home-shell category-card-section">
         <div className="category-section-head">
           <p className="section-kicker">Browse Categories</p>
-          <h2>Choose the food style customers want to see first</h2>
+          <h2>Start with the food style you want today</h2>
         </div>
 
         <div className="category-card-grid">
@@ -74,10 +89,29 @@ function Home() {
               key={category.name}
               onClick={() => handleCategoryClick(category)}
             >
-              <span>{category.name}</span>
+              <span><FaLeaf /> {category.name}</span>
               <p>{category.note}</p>
+              <strong>View meals <FaArrowRight /></strong>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="home-shell home-flow-section">
+        <div className="home-flow-card">
+          <FaStore />
+          <h3>Restaurants add food</h3>
+          <p>Owners upload menu items with real photos, prices, calories, protein, and location.</p>
+        </div>
+        <div className="home-flow-card">
+          <FaBowlFood />
+          <h3>Customers browse meals</h3>
+          <p>Menu and restaurant pages show live items directly from the backend.</p>
+        </div>
+        <div className="home-flow-card">
+          <FaCartShopping />
+          <h3>Orders move to cart</h3>
+          <p>Customers choose quantity, add items, and continue to checkout without noise.</p>
         </div>
       </section>
 
@@ -92,7 +126,7 @@ function Home() {
             </p>
           </div>
           <button type="button" onClick={() => navigate("/menu")}>
-            Open Menu
+            Open Menu <FaArrowRight />
           </button>
         </div>
       </section>

@@ -92,6 +92,50 @@
   margin-top: 18px;
 }
 
+.saved-delivery-box {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #e2ece4;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  background: #f6faf7;
+}
+
+.saved-delivery-box span,
+.saved-delivery-box strong,
+.saved-delivery-box p {
+  display: block;
+}
+
+.saved-delivery-box span {
+  color: #657569;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.saved-delivery-box strong {
+  margin-top: 4px;
+  color: #184734;
+}
+
+.saved-delivery-box p {
+  margin: 6px 0 0;
+  color: #657569;
+  line-height: 1.5;
+}
+
+.saved-delivery-box label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #24503e;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .checkout-grid input,
 .payment-block select {
   width: 100%;
@@ -103,11 +147,17 @@
   font: inherit;
 }
 
+.checkout-grid input:disabled {
+  background: #f0f5f1;
+  color: #52685d;
+  cursor: not-allowed;
+}
+
 .checkout-field-error {
   margin: -4px 0 2px;
   color: #b23d34;
   font-size: 0.88rem;
-  grid-column: 2;
+  grid-column: span 1;
 }
 
 .payment-block {
@@ -117,6 +167,48 @@
 .payment-block h3 {
   margin: 0 0 10px;
   color: #1d4333;
+}
+
+.payment-note {
+  margin: 8px 0 0;
+  color: #8a5a18;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.upi-box {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #d9e3da;
+  border-radius: 14px;
+  background: #f6faf7;
+}
+
+.upi-box p,
+.upi-box strong {
+  display: block;
+}
+
+.upi-box p {
+  margin: 0;
+  color: #657569;
+  font-size: 0.86rem;
+}
+
+.upi-box strong {
+  margin-top: 4px;
+  color: #184734;
+}
+
+.upi-box input {
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 14px;
+  border: 1px solid #d9e3da;
+  border-radius: 14px;
+  background: #fff;
+  color: #1e382d;
+  font: inherit;
 }
 
 .checkout-summary-list {
@@ -219,6 +311,14 @@
 
   .checkout-grid {
     grid-template-columns: 1fr;
+  }
+
+  .saved-delivery-box {
+    flex-direction: column;
+  }
+
+  .saved-delivery-box label {
+    white-space: normal;
   }
 
   .checkout-field-error {

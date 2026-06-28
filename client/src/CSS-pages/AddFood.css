@@ -49,6 +49,7 @@
 
 .field textarea,
 .field input,
+.field select,
 .preview-body p {
   line-height: 1.6;
 }
@@ -92,6 +93,7 @@
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
   border: 1px solid rgba(30, 55, 49, 0.12);
@@ -105,9 +107,27 @@
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
   border-color: #d66d45;
   box-shadow: 0 0 0 4px rgba(214, 109, 69, 0.12);
+}
+
+.field select {
+  appearance: none;
+  background:
+    linear-gradient(45deg, transparent 50%, #35514b 50%),
+    linear-gradient(135deg, #35514b 50%, transparent 50%),
+    #fffdfa;
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%,
+    0 0;
+  background-size:
+    6px 6px,
+    6px 6px,
+    100% 100%;
+  background-repeat: no-repeat;
 }
 
 .field textarea {

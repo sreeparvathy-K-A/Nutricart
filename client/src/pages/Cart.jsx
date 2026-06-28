@@ -2,9 +2,40 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../CSS-pages/Cart.css";
+import cartImg from "../assets/images/cartimg.jpg";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+
+const getFoodImageUrl = (image) => {
+  if (!image) return cartImg;
+
+  const normalizedImage = String(image).replace(/\\/g, "/");
+
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/uploads\//i.test(normalizedImage)) {
+    const uploadPath = new URL(normalizedImage).pathname;
+    return encodeURI(`${API_BASE_URL}${uploadPath}`);
+  }
+
+  if (/^https?:\/\//i.test(normalizedImage) || normalizedImage.startsWith("data:")) {
+    return normalizedImage;
+  }
+
+  if (normalizedImage.startsWith("/uploads")) {
+    return encodeURI(`${API_BASE_URL}${normalizedImage}`);
+  }
+
+  if (normalizedImage.startsWith("uploads/")) {
+    return encodeURI(`${API_BASE_URL}/${normalizedImage}`);
+  }
+
+  const uploadsIndex = normalizedImage.indexOf("uploads/");
+  if (uploadsIndex >= 0) {
+    return encodeURI(`${API_BASE_URL}/${normalizedImage.slice(uploadsIndex)}`);
+  }
+
+  return encodeURI(normalizedImage);
+};
 
 function Cart() {
   const navigate = useNavigate();
@@ -143,13 +174,17 @@ function Cart() {
             <section className="cart-list">
               {cartItems.map((item) => {
                 const food = item.foodId || {};
-                const imageUrl = food.image?.startsWith("/uploads")
-                  ? `${API_BASE_URL}${food.image}`
-                  : food.image;
+                const imageUrl = getFoodImageUrl(food.image);
 
                 return (
                   <article className="cart-card" key={item._id}>
-                    <img src={imageUrl} alt={food.name} />
+                    <img
+                      src={imageUrl}
+                      alt={food.name || "Food item"}
+                      onError={(e) => {
+                        e.currentTarget.src = cartImg;
+                      }}
+                    />
 
                     <div className="cart-card-body">
                       <div className="cart-card-head">

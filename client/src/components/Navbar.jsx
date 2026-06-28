@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaSignInAlt, FaUserCircle, FaUserPlus } from "react-icons/fa";
+import { FaShoppingCart, FaSignInAlt, FaUserCircle, FaUserPlus } from "react-icons/fa";
 import "../CSS-pages/Navbar.css";
 import logoImg from "../assets/images/logo.png";
 
@@ -67,11 +67,13 @@ function Navbar() {
           <Link to="/" className="nav-item">
             Home
           </Link>
-          <Link to="/restaurants" className="nav-item">
-            Restaurants
+          <Link to="/menu" className="nav-item">
+            Food Items
           </Link>
-          <Link to="/cart" className="nav-item">
-            Cart
+          
+          <Link to="/cart" className="nav-icon-link nav-cart-link" aria-label="Cart">
+            <FaShoppingCart />
+            <span>Cart</span>
           </Link>
 
           {showGuestNav ? (

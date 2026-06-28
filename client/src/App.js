@@ -138,6 +138,7 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import DeliveryDashboard from "./pages/DeliveryDashboard";
 import StaticPage from "./pages/StaticPage";
+import ResturantDetails from "./pages/ResturantDetails";
 
 function App() {
   const [userInfo, setUserInfo] = useState(null);
@@ -175,7 +176,7 @@ function App() {
       <Routes>
         {/* HOME */}
         <Route path="/" element={<Home />} />
-        <Route path="/restaurants" element={<Menu />} />
+        <Route path="/restaurants" element={<ResturantDetails />} />
 
         {/* LOGIN */}
         <Route path="/login" element={<Login mode="client" />} />

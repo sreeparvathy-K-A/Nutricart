@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS-pages/Checkout.css";
@@ -9,11 +9,36 @@ const API_BASE_URL =
 const initialForm = {
   fullName: "",
   phone: "",
+  alternatePhone: "",
   addressLine: "",
   city: "",
   state: "",
   pincode: "",
+  upiReference: "",
   paymentMethod: "Cash on Delivery",
+};
+
+const buildCheckoutFormFromUser = (user) => {
+  const address = user?.address || {};
+  const addressParts =
+    typeof address === "string"
+      ? address.split(",").map((part) => part.trim())
+      : [];
+
+  return {
+    ...initialForm,
+    fullName: user?.name || "",
+    phone: user?.phone || "",
+    alternatePhone: "",
+    addressLine:
+      typeof address === "string" ? addressParts[0] || "" : address.street || "",
+    city: typeof address === "string" ? addressParts[1] || "" : address.city || "",
+    state: typeof address === "string" ? addressParts[2] || "" : address.state || "",
+    pincode:
+      typeof address === "string"
+        ? (address.match(/\b\d{6}\b/) || [""])[0]
+        : address.pincode || "",
+  };
 };
 
 const loadRazorpayScript = () =>
@@ -30,13 +55,18 @@ const loadRazorpayScript = () =>
     document.body.appendChild(script);
   });
 
+const UPI_ID = process.env.REACT_APP_UPI_ID || "nutricart@upi";
+
 function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState(initialForm);
+  const [useDifferentAddress, setUseDifferentAddress] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const [alternatePhoneError, setAlternatePhoneError] = useState("");
   const [pincodeError, setPincodeError] = useState("");
+  const [razorpayEnabled, setRazorpayEnabled] = useState(false);
 
   const storedUser = useMemo(() => {
     try {
@@ -52,17 +82,45 @@ function Checkout() {
   );
   const totalAmount = Number(location.state?.totalAmount || 0);
 
+  useEffect(() => {
+    if (!storedUser) return;
+    setForm(buildCheckoutFormFromUser(storedUser));
+  }, [storedUser]);
+
+  useEffect(() => {
+    const fetchPaymentConfig = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/payments/config`);
+        setRazorpayEnabled(Boolean(response.data?.razorpayEnabled));
+      } catch (error) {
+        console.log("Payment config error:", error.response?.data || error.message);
+        setRazorpayEnabled(false);
+      }
+    };
+
+    fetchPaymentConfig();
+  }, []);
+
   const totalQuantity = useMemo(
     () => cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
     [cartItems]
   );
 
-  const address = `${form.fullName}, ${form.phone}, ${form.addressLine}, ${form.city}, ${form.state} - ${form.pincode}`;
+  const address = [
+    form.fullName,
+    form.phone,
+    form.alternatePhone ? `Alt: ${form.alternatePhone}` : "",
+    form.addressLine,
+    form.city,
+    `${form.state} - ${form.pincode}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     const nextValue =
-      name === "phone"
+      name === "phone" || name === "alternatePhone"
         ? value.replace(/\D/g, "").slice(0, 10)
         : name === "pincode"
           ? value.replace(/\D/g, "").slice(0, 6)
@@ -75,6 +133,16 @@ function Checkout() {
         setPhoneError("Enter a valid 10-digit phone number");
       } else {
         setPhoneError("");
+      }
+    }
+
+    if (name === "alternatePhone") {
+      if (!nextValue) {
+        setAlternatePhoneError("");
+      } else if (!/^[6-9]\d{9}$/.test(nextValue)) {
+        setAlternatePhoneError("Enter a valid 10-digit alternate number");
+      } else {
+        setAlternatePhoneError("");
       }
     }
 
@@ -126,9 +194,26 @@ function Checkout() {
       return;
     }
 
+    if (form.alternatePhone && !/^[6-9]\d{9}$/.test(form.alternatePhone)) {
+      setAlternatePhoneError("Enter a valid 10-digit alternate number");
+      alert("Please enter a valid alternate mobile number");
+      return;
+    }
+
     if (!/^\d{6}$/.test(form.pincode)) {
       setPincodeError("Enter a valid 6-digit pincode");
       alert("Please enter a valid pincode");
+      return;
+    }
+
+    if (form.paymentMethod === "Razorpay" && !razorpayEnabled) {
+      alert("Razorpay payment is not available right now. Please choose Cash on Delivery or UPI.");
+      setForm((prev) => ({ ...prev, paymentMethod: "Cash on Delivery" }));
+      return;
+    }
+
+    if (form.paymentMethod === "UPI" && !form.upiReference.trim()) {
+      alert("Please enter the UPI transaction/reference ID");
       return;
     }
 
@@ -152,13 +237,14 @@ function Checkout() {
         throw new Error("Order was created without an order id");
       }
 
-      if (form.paymentMethod === "Cash on Delivery") {
+      if (form.paymentMethod === "Cash on Delivery" || form.paymentMethod === "UPI") {
         await axios.post(`${API_BASE_URL}/api/payments/add`, {
           orderId,
           userId: storedUser.id,
           amount: totalAmount,
           paymentMethod: form.paymentMethod,
-          paymentStatus: "Pending",
+          paymentStatus: form.paymentMethod === "UPI" ? "Pending Verification" : "Pending",
+          transactionId: form.upiReference.trim(),
         });
       } else {
         const scriptLoaded = await loadRazorpayScript();
@@ -190,10 +276,10 @@ function Checkout() {
               contact: form.phone,
             },
             method: {
-              upi: form.paymentMethod === "UPI",
-              card: form.paymentMethod === "Card",
-              netbanking: false,
-              wallet: false,
+              upi: true,
+              card: true,
+              netbanking: true,
+              wallet: true,
             },
             handler: async (response) => {
               try {
@@ -223,11 +309,14 @@ function Checkout() {
 
       await axios.delete(`${API_BASE_URL}/api/carts/clear/${storedUser.id}`);
 
-      alert(
+      const successMessage =
         form.paymentMethod === "Cash on Delivery"
           ? "Order placed successfully"
-          : "Payment successful and order placed"
-      );
+          : form.paymentMethod === "UPI"
+            ? "Order placed. UPI payment is pending verification"
+            : "Razorpay payment successful and order placed";
+
+      alert(successMessage);
       navigate("/client-dashboard");
     } catch (error) {
       console.log("Checkout error:", error.response?.data || error.message);
@@ -290,12 +379,29 @@ function Checkout() {
           <section className="checkout-form-card">
             <h2>Delivery details</h2>
 
+            <div className="saved-delivery-box">
+              <div>
+                <span>Saved delivery details</span>
+                <strong>{storedUser.name}</strong>
+                <p>{address}</p>
+              </div>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={useDifferentAddress}
+                  onChange={(e) => setUseDifferentAddress(e.target.checked)}
+                />
+                Add different address
+              </label>
+            </div>
+
             <div className="checkout-grid">
               <input
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
                 placeholder="Full name"
+                disabled={!useDifferentAddress}
               />
               <input
                 name="phone"
@@ -304,25 +410,41 @@ function Checkout() {
                 placeholder="Phone number"
                 inputMode="numeric"
                 maxLength="10"
+                disabled={!useDifferentAddress}
               />
               {phoneError ? <p className="checkout-field-error">{phoneError}</p> : null}
+              <input
+                name="alternatePhone"
+                value={form.alternatePhone}
+                onChange={handleChange}
+                placeholder="Alternate mobile number (optional)"
+                inputMode="numeric"
+                maxLength="10"
+                disabled={!useDifferentAddress}
+              />
+              {alternatePhoneError ? (
+                <p className="checkout-field-error">{alternatePhoneError}</p>
+              ) : null}
               <input
                 name="addressLine"
                 value={form.addressLine}
                 onChange={handleChange}
                 placeholder="Address"
+                disabled={!useDifferentAddress}
               />
               <input
                 name="city"
                 value={form.city}
                 onChange={handleChange}
                 placeholder="City"
+                disabled={!useDifferentAddress}
               />
               <input
                 name="state"
                 value={form.state}
                 onChange={handleChange}
                 placeholder="State"
+                disabled={!useDifferentAddress}
               />
               <input
                 name="pincode"
@@ -331,6 +453,7 @@ function Checkout() {
                 placeholder="Pincode"
                 inputMode="numeric"
                 maxLength="6"
+                disabled={!useDifferentAddress}
               />
               {pincodeError ? <p className="checkout-field-error">{pincodeError}</p> : null}
             </div>
@@ -342,10 +465,25 @@ function Checkout() {
                 value={form.paymentMethod}
                 onChange={handleChange}
               >
-                <option>Cash on Delivery</option>
-                <option>UPI</option>
-                <option>Card</option>
+                <option value="Cash on Delivery">Cash on Delivery</option>
+                <option value="UPI">UPI - Manual Reference</option>
+                <option value="Razorpay" disabled={!razorpayEnabled}>Razorpay - Online Payment</option>
               </select>
+              {form.paymentMethod === "UPI" ? (
+                <div className="upi-box">
+                  <p>Manual UPI payment</p>
+                  <strong>{UPI_ID}</strong>
+                  <input
+                    name="upiReference"
+                    value={form.upiReference}
+                    onChange={handleChange}
+                    placeholder="UPI transaction/reference ID"
+                  />
+                </div>
+              ) : null}
+              {!razorpayEnabled ? (
+                <p className="payment-note">Razorpay online payment is unavailable. Manual UPI and Cash on Delivery are available.</p>
+              ) : null}
             </div>
           </section>
 

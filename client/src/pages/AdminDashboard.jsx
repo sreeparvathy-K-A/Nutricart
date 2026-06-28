@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaChevronLeft, FaChevronRight, FaSearch } from "react-icons/fa";
+import { FaCheckCircle, FaChevronLeft, FaChevronRight, FaClock, FaSearch, FaTimesCircle, FaUserPlus } from "react-icons/fa";
 import "../CSS-pages/AdminDashboard.css";
 
 const API_BASE_URL =
@@ -17,12 +17,18 @@ function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 3;
+  const recordsPerPage = 10;
   const [dashboardCounts, setDashboardCounts] = useState({
     clients: 0,
     owners: 0,
     delivery: 0,
     orders: 0,
+  });
+  const [reviewCounts, setReviewCounts] = useState({
+    clientsNew: 0,
+    ownersPending: 0,
+    deliveryPending: 0,
+    totalPending: 0,
   });
 
   const approvedDeliveryBoys = useMemo(
@@ -55,14 +61,56 @@ function AdminDashboard() {
     setActiveTab(tab);
   };
 
+  const getItemStatus = (item) =>
+    item.status || (item.isApproved ? "approved" : "pending");
+
+  const isNewRecord = (item) => {
+    if (!item.createdAt) return false;
+    const createdTime = new Date(item.createdAt).getTime();
+    if (Number.isNaN(createdTime)) return false;
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    return Date.now() - createdTime <= sevenDays;
+  };
+
+  const getDisplayName = (item) =>
+    item.businessName ||
+    item.name ||
+    item.username ||
+    item.ownerName ||
+    item.deliveryBoyName ||
+    "Unknown user";
+
+  const formatDate = (value) => {
+    if (!value) return "Not available";
+    return new Date(value).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const sortedData = useMemo(() => {
+    return [...data].sort((a, b) => {
+      const aPending = getItemStatus(a) === "pending" ? 1 : 0;
+      const bPending = getItemStatus(b) === "pending" ? 1 : 0;
+
+      if (aPending !== bPending) {
+        return bPending - aPending;
+      }
+
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+  }, [data]);
+
   const filteredData = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    if (!query) return data;
+    if (!query) return sortedData;
 
-    return data.filter((item) => {
+    return sortedData.filter((item) => {
       const searchableText = [
         item._id,
         item.name,
+        item.businessName,
         item.username,
         item.ownerName,
         item.email,
@@ -80,7 +128,7 @@ function AdminDashboard() {
 
       return searchableText.includes(query);
     });
-  }, [data, searchTerm]);
+  }, [sortedData, searchTerm]);
 
   const renderSearch = (placeholder) => (
     <label className="admin-search">
@@ -153,6 +201,14 @@ function AdminDashboard() {
         delivery: deliveryRes.data.length,
         orders: ordersRes.data.length,
       });
+      setReviewCounts({
+        clientsNew: clientsRes.data.filter(isNewRecord).length,
+        ownersPending: ownersRes.data.filter((item) => getItemStatus(item) === "pending").length,
+        deliveryPending: deliveryRes.data.filter((item) => getItemStatus(item) === "pending").length,
+        totalPending:
+          ownersRes.data.filter((item) => getItemStatus(item) === "pending").length +
+          deliveryRes.data.filter((item) => getItemStatus(item) === "pending").length,
+      });
     } catch (err) {
       console.error(err);
       setDashboardCounts({
@@ -160,6 +216,12 @@ function AdminDashboard() {
         owners: 0,
         delivery: 0,
         orders: 0,
+      });
+      setReviewCounts({
+        clientsNew: 0,
+        ownersPending: 0,
+        deliveryPending: 0,
+        totalPending: 0,
       });
     } finally {
       setIsLoading(false);
@@ -258,20 +320,19 @@ function AdminDashboard() {
     } else {
       fetchData(activeTab);
     }
+    // Fetching is intentionally tied to tab changes only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const getItemRole = (item) =>
     item.role ||
     (activeTab === "delivery"
-      ? "delivery"
+      ? "delivery "
       : activeTab === "owners"
         ? "owner"
         : activeTab === "clients"
           ? "client"
           : "user");
-
-  const getItemStatus = (item) =>
-    item.status || (item.isApproved ? "approved" : "pending");
 
   const getRoleFromTab = (tab) =>
     tab === "delivery"
@@ -296,19 +357,97 @@ function AdminDashboard() {
       .join(", ");
   };
 
+  const getUploadUrl = (filePath) => {
+    if (!filePath) return "";
+    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+      return filePath;
+    }
+    if (filePath.startsWith("/uploads")) {
+      return `${API_BASE_URL}${filePath}`;
+    }
+    return `${API_BASE_URL}/uploads/${filePath.replace(/^\/+/, "")}`;
+  };
+
+  const ownerAddress = (owner) =>
+    [owner.street, owner.city, owner.state, owner.pincode].filter(Boolean).join(", ");
+
+  const renderDetailField = (label, value) => (
+    <div className="admin-detail-field">
+      <span>{label}</span>
+      <strong>
+        {typeof value === "object" && value !== null
+          ? formatAddress(value)
+          : value || "Not provided"}
+      </strong>
+    </div>
+  );
+
+  const renderOwnerImages = (owner) => {
+    const images = [
+      { label: "Owner Photo", value: owner.ownerPhoto },
+      { label: "Shop Image", value: owner.shopImage },
+      { label: "License Image", value: owner.licenseImage },
+    ];
+
+    return (
+      <div className="admin-owner-documents">
+        {images.map((image) => {
+          const imageUrl = getUploadUrl(image.value);
+
+          return (
+            <div className="admin-owner-document" key={image.label}>
+              <span>{image.label}</span>
+              {imageUrl ? (
+                <>
+                  <img src={imageUrl} alt={image.label} />
+                  <a href={imageUrl} target="_blank" rel="noreferrer">
+                    Open image
+                  </a>
+                </>
+              ) : (
+                <div className="admin-document-empty">No image uploaded</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderDeliveryPhoto = (deliveryPartner) => {
+    const imageUrl = getUploadUrl(deliveryPartner.photo);
+
+    return (
+      <div className="admin-owner-doc-section">
+        <h3>Uploaded Photo</h3>
+        <div className="admin-owner-documents delivery-documents">
+          <div className="admin-owner-document">
+            <span>Delivery Partner Photo</span>
+            {imageUrl ? (
+              <>
+                <img src={imageUrl} alt="Delivery partner" />
+                <a href={imageUrl} target="_blank" rel="noreferrer">
+                  Open image
+                </a>
+              </>
+            ) : (
+              <div className="admin-document-empty">No photo uploaded</div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderTable = () => (
     <div className="table-container order-management-box">
       <div className="order-management-head">
-        <div>
-          <h2>{activeTab.toUpperCase()} MANAGEMENT</h2>
-          <p className="admin-section-note">{tabLabels[activeTab]}</p>
-        </div>
         <span>{data.length} records</span>
       </div>
 
       {renderSearch(`Search ${activeTab}`)}
 
-      <div className="admin-record-list">
+      <div className="admin-table-wrap admin-record-table-wrap">
         {filteredData.length === 0 ? (
           <div className="order-admin-empty">
             {searchTerm
@@ -318,73 +457,87 @@ function AdminDashboard() {
               : "No records found"}
           </div>
         ) : (
-          paginatedData.map((item, index) => {
-            const status = getItemStatus(item);
-            const canReview =
-              (activeTab === "owners" || activeTab === "delivery") &&
-              status === "pending";
-            const name = item.name || item.username || item.ownerName || "Unknown user";
+          <table className="admin-record-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Member</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Registered</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedData.map((item, index) => {
+                const status = getItemStatus(item);
+                const canReview =
+                  (activeTab === "owners" || activeTab === "delivery") &&
+                  status === "pending";
+                const name = getDisplayName(item);
 
-            return (
-              <article className="admin-record-card" key={item._id}>
-                <div className="admin-record-head">
-                  <div>
-                    <span>{getItemRole(item)} record</span>
-                    <h3>{String(pageStart + index + 1).padStart(2, "0")}. {name}</h3>
-                  </div>
-                  <span className={`admin-status admin-status-${status}`}>{status}</span>
-                </div>
+                return (
+                  <tr className={status === "pending" ? "needs-review-row" : ""} key={item._id}>
+                    <td>
+                      <span className="admin-row-number">
+                        {String(pageStart + index + 1).padStart(2, "0")}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="admin-member-cell">
+                        <strong>{name}</strong>
+                        <span>#{item._id?.slice(-6).toUpperCase()}</span>
+                        {isNewRecord(item) ? (
+                          <em><FaUserPlus /> New</em>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td>{item.email || "Not provided"}</td>
+                    <td>{item.phone || item.mobile || "Not provided"}</td>
+                    <td className="admin-role-cell">{getItemRole(item)}</td>
+                    <td>{formatDate(item.createdAt)}</td>
+                    <td>
+                      <span className={`admin-status admin-status-${status}`}>
+                        {status === "pending" ? <FaClock /> : status === "approved" ? <FaCheckCircle /> : <FaTimesCircle />}
+                        {status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="admin-table-actions">
+                        <button
+                          className="view"
+                          onClick={() => handleAction(activeTab, "View", item._id)}
+                        >
+                          View
+                        </button>
 
-                <div className="admin-record-id">
-                  <span>RECORD ID</span>
-                  <strong>#{item._id?.slice(-6).toUpperCase()}</strong>
-                </div>
-
-                <div className="admin-record-details">
-                  <div>
-                    <span>Email</span>
-                    <strong>{item.email || "Not provided"}</strong>
-                  </div>
-                  <div>
-                    <span>Phone</span>
-                    <strong>{item.phone || item.mobile || "Not provided"}</strong>
-                  </div>
-                  <div>
-                    <span>Role</span>
-                    <strong>{getItemRole(item)}</strong>
-                  </div>
-                </div>
-
-                <div className="admin-record-actions">
-                  <button
-                    className="view"
-                    onClick={() => handleAction(activeTab, "View", item._id)}
-                  >
-                    View Details
-                  </button>
-
-                  {canReview ? (
-                    <>
-                      <button
-                        className="approve"
-                        onClick={() => handleAction(activeTab, "Approve", item._id)}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        className="reject"
-                        onClick={() => handleAction(activeTab, "Reject", item._id)}
-                      >
-                        Reject
-                      </button>
-                    </>
-                  ) : activeTab === "owners" || activeTab === "delivery" ? (
-                    <span className="admin-action-note">Review completed</span>
-                  ) : null}
-                </div>
-              </article>
-            );
-          })
+                        {canReview ? (
+                          <>
+                            <button
+                              className="approve"
+                              onClick={() => handleAction(activeTab, "Approve", item._id)}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="reject"
+                              onClick={() => handleAction(activeTab, "Reject", item._id)}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : activeTab === "clients" && isNewRecord(item) ? (
+                          <span className="admin-action-note new-client-note">New</span>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
       {renderViewMore()}
@@ -459,7 +612,7 @@ function AdminDashboard() {
               <div className="order-admin-details">
                 <div>
                   <span>Address</span>
-                  <strong>{order.address || "Not provided"}</strong>
+                  <strong>{formatAddress(order.address) || "Not provided"}</strong>
                 </div>
                 <div>
                   <span>Total Amount</span>
@@ -560,24 +713,30 @@ function AdminDashboard() {
             {isLoading ? (
               <div className="admin-empty-state">Loading dashboard...</div>
             ) : (
-            <div className="cards">
-              <div className="card">
-                <h3>Clients</h3>
-                <p>{dashboardCounts.clients}</p>
+            <>
+              <div className="cards">
+                <button type="button" className="card" onClick={() => openTab("clients")}>
+                  <span>New this week: {reviewCounts.clientsNew}</span>
+                  <h3>Clients</h3>
+                  <p>{dashboardCounts.clients}</p>
+                </button>
+                <button type="button" className="card review-card" onClick={() => openTab("owners")}>
+                  <span>Pending: {reviewCounts.ownersPending}</span>
+                  <h3>Owners</h3>
+                  <p>{dashboardCounts.owners}</p>
+                </button>
+                <button type="button" className="card review-card" onClick={() => openTab("delivery")}>
+                  <span>Pending: {reviewCounts.deliveryPending}</span>
+                  <h3>Delivery</h3>
+                  <p>{dashboardCounts.delivery}</p>
+                </button>
+                <button type="button" className="card" onClick={() => openTab("orders")}>
+                  <span>Assignable orders</span>
+                  <h3>Orders</h3>
+                  <p>{dashboardCounts.orders}</p>
+                </button>
               </div>
-              <div className="card">
-                <h3>Owners</h3>
-                <p>{dashboardCounts.owners}</p>
-              </div>
-              <div className="card">
-                <h3>Delivery</h3>
-                <p>{dashboardCounts.delivery}</p>
-              </div>
-              <div className="card">
-                <h3>Orders</h3>
-                <p>{dashboardCounts.orders}</p>
-              </div>
-            </div>
+            </>
             )}
           </>
         ) : activeTab === "orders" ? (
@@ -589,19 +748,76 @@ function AdminDashboard() {
 
       {selectedUser && (
         <div className="modal">
-          <div className="modal-content">
-            <h2>User Details</h2>
-            <p><b>No:</b> #{selectedUser._id?.slice(-6).toUpperCase()}</p>
-            <p><b>Name:</b> {selectedUser.name || selectedUser.ownerName}</p>
-            <p><b>Email:</b> {selectedUser.email}</p>
-            <p><b>Phone:</b> {selectedUser.phone || "-"}</p>
-            {formatAddress(selectedUser.address) ? (
-              <p><b>Address:</b> {formatAddress(selectedUser.address)}</p>
-            ) : null}
-            {selectedUser.vehicleType ? <p><b>Vehicle:</b> {selectedUser.vehicleType}</p> : null}
-            {selectedUser.licenseNumber ? <p><b>License:</b> {selectedUser.licenseNumber}</p> : null}
-            <p><b>Role:</b> {selectedUser.role || "user"}</p>
-            <p><b>Status:</b> {selectedUser.status || (selectedUser.isApproved ? "approved" : "pending")}</p>
+          <div className={`modal-content ${selectedUser.role === "owner" || selectedUser.role === "delivery" ? "owner-detail-modal" : ""}`}>
+            <div className="admin-modal-head">
+              <div>
+                <p className="admin-kicker">{selectedUser.role || "User"} Details</p>
+                <h2>
+                  {selectedUser.role === "owner"
+                    ? selectedUser.businessName || selectedUser.ownerName
+                    : selectedUser.name || selectedUser.ownerName}
+                </h2>
+              </div>
+              <span className={`admin-status admin-status-${selectedUser.status || (selectedUser.isApproved ? "approved" : "pending")}`}>
+                {selectedUser.status || (selectedUser.isApproved ? "approved" : "pending")}
+              </span>
+            </div>
+
+            {selectedUser.role === "owner" ? (
+              <>
+                <div className="admin-detail-grid">
+                  {renderDetailField("Record No", `#${selectedUser._id?.slice(-6).toUpperCase()}`)}
+                  {renderDetailField("Hotel Name", selectedUser.businessName)}
+                  {renderDetailField("Owner Name", selectedUser.ownerName)}
+                  {renderDetailField("Email", selectedUser.email)}
+                  {renderDetailField("Phone", selectedUser.phone)}
+                  {renderDetailField("FSSAI Number", selectedUser.fssaiNumber)}
+                  {renderDetailField("Street", selectedUser.street)}
+                  {renderDetailField("City", selectedUser.city)}
+                  {renderDetailField("State", selectedUser.state)}
+                  {renderDetailField("Pincode", selectedUser.pincode)}
+                  {renderDetailField("Full Address", ownerAddress(selectedUser))}
+                  {renderDetailField("Registered", formatDate(selectedUser.createdAt))}
+                </div>
+
+                <div className="admin-owner-doc-section">
+                  <h3>Uploaded Images</h3>
+                  {renderOwnerImages(selectedUser)}
+                </div>
+              </>
+            ) : selectedUser.role === "delivery" ? (
+              <>
+                <div className="admin-detail-grid">
+                  {renderDetailField("Record No", `#${selectedUser._id?.slice(-6).toUpperCase()}`)}
+                  {renderDetailField("Full Name", selectedUser.name)}
+                  {renderDetailField("Email", selectedUser.email)}
+                  {renderDetailField("Phone", selectedUser.phone)}
+                  {renderDetailField("Address", selectedUser.address)}
+                  {renderDetailField("Vehicle Type", selectedUser.vehicleType)}
+                  {renderDetailField("Vehicle Number", selectedUser.vehicleNumber)}
+                  {renderDetailField("License Number", selectedUser.licenseNumber)}
+                  {renderDetailField("Availability", selectedUser.availability)}
+                  {renderDetailField("Registered", formatDate(selectedUser.createdAt))}
+                </div>
+
+                {renderDeliveryPhoto(selectedUser)}
+              </>
+            ) : (
+              <div className="admin-detail-grid">
+                {renderDetailField("Record No", `#${selectedUser._id?.slice(-6).toUpperCase()}`)}
+                {renderDetailField("Name", selectedUser.name || selectedUser.ownerName)}
+                {renderDetailField("Email", selectedUser.email)}
+                {renderDetailField("Phone", selectedUser.phone || "-")}
+                {formatAddress(selectedUser.address)
+                  ? renderDetailField("Address", formatAddress(selectedUser.address))
+                  : null}
+                {selectedUser.vehicleType ? renderDetailField("Vehicle", selectedUser.vehicleType) : null}
+                {selectedUser.licenseNumber ? renderDetailField("License", selectedUser.licenseNumber) : null}
+                {renderDetailField("Role", selectedUser.role || "user")}
+                {renderDetailField("Registered", formatDate(selectedUser.createdAt))}
+              </div>
+            )}
+
             <button onClick={() => setSelectedUser(null)}>Close</button>
           </div>
         </div>

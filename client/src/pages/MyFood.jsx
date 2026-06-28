@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 import "../CSS-pages/MyFood.css";
+import menuImg from "../assets/images/menuimg.jpg";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
@@ -18,15 +19,52 @@ const emptyForm = {
   rating: "",
 };
 
+const foodCategories = [
+  "Healthy Meal",
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Salad",
+  "Smoothie",
+  "Protein Bowl",
+  "Vegan",
+  "Weight Loss",
+  "Muscle Gain",
+  "Low Calorie",
+  "Diabetic Friendly",
+  "Gluten Free",
+  "Snacks",
+  "Drinks",
+];
+
 const getImageUrl = (imagePath) => {
-  if (!imagePath) return "";
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    return imagePath;
+  if (!imagePath) return menuImg;
+
+  const normalizedImage = String(imagePath).replace(/\\/g, "/");
+
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/uploads\//i.test(normalizedImage)) {
+    const uploadPath = new URL(normalizedImage).pathname;
+    return encodeURI(`${API_BASE_URL}${uploadPath}`);
   }
-  if (imagePath.startsWith("/uploads")) {
-    return `${API_BASE_URL}${imagePath}`;
+
+  if (/^https?:\/\//i.test(normalizedImage) || normalizedImage.startsWith("data:")) {
+    return normalizedImage;
   }
-  return `${API_BASE_URL}/${imagePath.replace(/^\/+/, "")}`;
+
+  if (normalizedImage.startsWith("/uploads")) {
+    return encodeURI(`${API_BASE_URL}${normalizedImage}`);
+  }
+
+  if (normalizedImage.startsWith("uploads/")) {
+    return encodeURI(`${API_BASE_URL}/${normalizedImage}`);
+  }
+
+  const uploadsIndex = normalizedImage.indexOf("uploads/");
+  if (uploadsIndex >= 0) {
+    return encodeURI(`${API_BASE_URL}/${normalizedImage.slice(uploadsIndex)}`);
+  }
+
+  return encodeURI(normalizedImage);
 };
 
 function MyFood() {
@@ -237,25 +275,75 @@ function MyFood() {
             </button>
           </div>
         ) : (
-          <section className="owner-food-grid">
-            {foods.map((food) => {
-              const isEditing = editingId === food._id;
-              const imageUrl = getImageUrl(food.image);
+          <section className="owner-food-table-section">
+            <div className="owner-food-table-wrap">
+              <table className="owner-food-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Food</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {foods.map((food) => {
+                    const isEditing = editingId === food._id;
+                    const imageUrl = getImageUrl(food.image);
 
-              return (
-                <article className="food-card" key={food._id}>
-                  <div className="food-card-image">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={food.name} />
-                    ) : (
-                      <div className="food-card-image-fallback">No image</div>
-                    )}
-                    <span>{food.category || "Menu item"}</span>
-                  </div>
+                    return (
+                      <React.Fragment key={food._id}>
+                        <tr>
+                          <td>
+                            <div className="food-table-image">
+                              {imageUrl ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={food.name}
+                                  onError={(e) => {
+                                    e.currentTarget.src = menuImg;
+                                  }}
+                                />
+                              ) : (
+                                <span>No image</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="food-table-name">
+                              <strong>{food.name}</strong>
+                              <span>{food.description || "No description added."}</span>
+                            </div>
+                          </td>
+                          <td>{food.category || "Uncategorized"}</td>
+                          <td>Rs. {food.price}</td>
+                          <td>{food.calories || 0} kcal</td>
+                          <td>{food.protein || 0} g</td>
+                          <td>{food.rating || 0}</td>
+                          <td>
+                            <div className="food-table-actions">
+                              <button type="button" className="primary" onClick={() => startEdit(food)}>
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="danger"
+                                onClick={() => handleDelete(food._id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
 
-                  <div className="food-card-body">
-                    {isEditing ? (
-                      <div className="food-edit-form">
+                        {isEditing ? (
+                          <tr className="food-edit-row">
+                            <td colSpan="8">
+                              <div className="food-edit-form food-edit-form-table">
                         <input
                           name="name"
                           value={editForm.name}
@@ -279,12 +367,18 @@ function MyFood() {
                             onChange={handleEditChange}
                             placeholder="Price"
                           />
-                          <input
+                          <select
                             name="category"
                             value={editForm.category}
                             onChange={handleEditChange}
-                            placeholder="Category"
-                          />
+                          >
+                            <option value="">Select category</option>
+                            {foodCategories.map((category) => (
+                              <option key={category} value={category}>
+                                {category}
+                              </option>
+                            ))}
+                          </select>
                           <input
                             name="calories"
                             type="number"
@@ -336,41 +430,15 @@ function MyFood() {
                           </button>
                         </div>
                       </div>
-                    ) : (
-                      <>
-                        <div className="food-card-top">
-                          <div>
-                            <h3>{food.name}</h3>
-                            <p>{food.description || "No description added yet."}</p>
-                          </div>
-                          <strong>Rs. {food.price}</strong>
-                        </div>
-
-                        <div className="food-meta">
-                          <span>{food.category || "Uncategorized"}</span>
-                          <span>{food.calories || 0} kcal</span>
-                          <span>{food.protein || 0} g protein</span>
-                          <span>{food.rating || 0} rating</span>
-                        </div>
-
-                        <div className="food-card-actions">
-                          <button type="button" className="primary" onClick={() => startEdit(food)}>
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            className="danger"
-                            onClick={() => handleDelete(food._id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
+                            </td>
+                          </tr>
+                        ) : null}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
       </main>

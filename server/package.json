@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Nutricart backend",
   "main": "server.js",
-  "type": "module", 
+  "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js"
@@ -11,6 +11,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
+    "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
@@ -23,7 +24,11 @@
   "devDependencies": {
     "nodemon": "^3.1.14"
   },
-  "keywords": ["backend", "nutricart", "mern"],
+  "keywords": [
+    "backend",
+    "nutricart",
+    "mern"
+  ],
   "author": "Sreeparvathy K A",
   "license": "ISC"
 }
