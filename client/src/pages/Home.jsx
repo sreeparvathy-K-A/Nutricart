@@ -37,7 +37,7 @@ function Home() {
   ];
 
   const handleCategoryClick = (category) => {
-    navigate(`/menu?search=${encodeURIComponent(category.searchTerm || category.name)}`);
+    navigate(`/menu?category=${encodeURIComponent(category.searchTerm || category.name)}`);
   };
 
   const handleSearch = (event) => {
@@ -84,7 +84,8 @@ function Home() {
 
         <div className="category-card-grid">
           {categories.map((category) => (
-            <article
+            <button
+              type="button"
               className="category-home-card"
               key={category.name}
               onClick={() => handleCategoryClick(category)}
@@ -92,7 +93,7 @@ function Home() {
               <span><FaLeaf /> {category.name}</span>
               <p>{category.note}</p>
               <strong>View meals <FaArrowRight /></strong>
-            </article>
+            </button>
           ))}
         </div>
       </section>

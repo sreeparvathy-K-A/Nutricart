@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaCartPlus, FaMagnifyingGlass, FaStar } from "react-icons/fa6";
+import { FaArrowLeft, FaCartPlus, FaMagnifyingGlass, FaStar, FaXmark } from "react-icons/fa6";
 import "../CSS-pages/Menu.css";
 import menuImg from "../assets/images/menuimg.jpg";
 
@@ -45,6 +45,7 @@ function Menu() {
   const [searchInput, setSearchInput] = useState(initialSearch);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [quantities, setQuantities] = useState({});
+  const [selectedFood, setSelectedFood] = useState(null);
   const navigate = useNavigate();
   const selectedCategory = new URLSearchParams(location.search).get("category") || "";
 
@@ -246,6 +247,10 @@ function Menu() {
 
                   <p className="desc">{item.description || "Freshly prepared food item."}</p>
 
+                  <button type="button" className="food-details-btn" onClick={() => setSelectedFood(item)}>
+                    View More
+                  </button>
+
                   <div className="food-tags">
                     <span className="tag">{item.category || "General"}</span>
                     <span className="tag">{item.calories || 0} cal</span>
@@ -289,6 +294,55 @@ function Menu() {
           })
         )}
       </div>
+
+      {selectedFood ? (
+        <div className="food-details-backdrop" role="presentation" onMouseDown={() => setSelectedFood(null)}>
+          <section
+            className="food-details-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="food-details-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button type="button" className="food-details-close" aria-label="Close food details" onClick={() => setSelectedFood(null)}>
+              <FaXmark />
+            </button>
+            <img
+              src={getFoodImageUrl(selectedFood.image)}
+              alt={selectedFood.name}
+              onError={(event) => {
+                event.currentTarget.src = menuImg;
+              }}
+            />
+            <div className="food-details-content">
+              <div className="food-details-heading">
+                <div>
+                  <span>{selectedFood.category || "General"}</span>
+                  <h2 id="food-details-title">{selectedFood.name}</h2>
+                  <p>{selectedFood.hotelName || "Nutricart partner"}</p>
+                </div>
+                <strong>Rs. {selectedFood.price}</strong>
+              </div>
+              <p className="food-details-description">
+                {selectedFood.description || "Freshly prepared food item."}
+              </p>
+              <div className="food-details-meta">
+                <span>{selectedFood.calories || 0} calories</span>
+                <span>{selectedFood.protein || 0}g protein</span>
+                <span><FaStar /> {getRatingLabel(selectedFood.rating)}</span>
+              </div>
+              <button
+                type="button"
+                className="cart-btn food-details-cart"
+                onClick={() => handleAddToCart(selectedFood._id)}
+                disabled={selectedFood.isAvailable === false}
+              >
+                <FaCartPlus /> {selectedFood.isAvailable === false ? "Unavailable" : "Add to cart"}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

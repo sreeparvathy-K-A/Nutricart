@@ -262,3 +262,126 @@
     padding: 22px;
   }
 }
+
+/* Compact desktop form keeps the full workflow in one viewport. */
+@media (min-width: 981px) {
+  .add-food-main {
+    padding: 18px 24px;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .add-food-hero {
+    margin-bottom: 12px;
+    padding: 0 2px;
+  }
+
+  .add-food-hero .add-food-kicker {
+    margin-bottom: 4px;
+  }
+
+  .add-food-hero h1 {
+    margin-bottom: 3px;
+  }
+
+  .add-food-form {
+    padding: 18px 20px;
+    border-radius: 8px;
+  }
+
+  .form-header {
+    margin-bottom: 12px;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 14px;
+  }
+
+  .field-description {
+    grid-column: span 2;
+  }
+
+  .field {
+    gap: 5px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    border-radius: 8px;
+    padding: 9px 11px;
+  }
+
+  .field textarea {
+    min-height: 64px;
+    resize: none;
+  }
+
+  .add-food-actions {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .upload-box {
+    margin-top: 0;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: auto minmax(160px, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+  }
+
+  .upload-box strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .submit-food-button {
+    margin-top: 0;
+    border-radius: 8px;
+    padding: 12px 18px;
+  }
+
+  .upload-box input {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .add-food-page {
+    height: 100vh;
+    min-height: 0;
+  }
+
+  .add-food-main {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .add-food-actions {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 981px) {
+  .add-food-hero {
+    display: none;
+  }
+
+  .add-food-form {
+    padding-block: 14px;
+  }
+}

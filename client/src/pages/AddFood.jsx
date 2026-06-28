@@ -130,7 +130,7 @@ const AddFood = () => {
           </div>
 
           <div className="form-grid">
-            <label className="field field-wide">
+            <label className="field">
               <span>Food name</span>
               <input
                 name="name"
@@ -141,14 +141,14 @@ const AddFood = () => {
               />
             </label>
 
-            <label className="field field-wide">
+            <label className="field field-description">
               <span>Description</span>
               <textarea
                 name="description"
                 value={formData.description}
                 placeholder="A short, appetizing description for customers"
                 onChange={handleChange}
-                rows="4"
+                rows="2"
               />
             </label>
 
@@ -221,16 +221,17 @@ const AddFood = () => {
             </label>
           </div>
 
-          <label className="upload-box">
-            <span className="upload-label">Food image</span>
-            <input type="file" accept="image/*" onChange={handleImageChange} required />
-            <strong>{image ? image.name : "Choose an image to upload"}</strong>
-            <p>Use a clear food photo for a better menu listing.</p>
-          </label>
+          <div className="add-food-actions">
+            <label className="upload-box">
+              <span className="upload-label">Food image</span>
+              <input type="file" accept="image/*" onChange={handleImageChange} required />
+              <strong>{image ? image.name : "Choose an image to upload"}</strong>
+            </label>
 
-          <button className="submit-food-button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Add Food"}
-          </button>
+            <button className="submit-food-button" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Add Food"}
+            </button>
+          </div>
         </form>
       </div>
       </main>
