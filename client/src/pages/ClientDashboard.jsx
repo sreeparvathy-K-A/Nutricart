@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { FiEdit3, FiGrid, FiLogOut, FiPackage, FiSave, FiShoppingCart, FiUser } from "react-icons/fi";
+import { FiCamera, FiEdit3, FiGrid, FiLogOut, FiPackage, FiSave, FiShoppingCart, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "../CSS-pages/ClientDashboard.css";
 
@@ -237,7 +237,7 @@ function ClientDashboard() {
 
   const activeTitle = sidebarItems.find((item) => item.value === activeView)?.label || "Account";
   const orderedItems = orders.flatMap((order) =>
-    (order.items || []).map((item, index) => {
+    (order.items || []).filter((item) => item.foodId).map((item, index) => {
       const food = item.foodId || {};
       const quantity = Number(item.quantity || 1);
       const price = Number(food.price || 0);
@@ -336,14 +336,6 @@ function ClientDashboard() {
           <section className="client-dashboard-panel">
             {activeView === "dashboard" ? (
               <div className="client-section-view">
-                <div className="client-section-head">
-                  <div>
-                    <p className="client-kicker">Overview</p>
-                    <h2>Main Dashboard</h2>
-                    <span>Quick summary for your Nutricart account</span>
-                  </div>
-                </div>
-
                 <section className="dashboard-overview-grid">
                   <button type="button" className="dashboard-overview-card" onClick={() => setActiveView("cart")}>
                     <FiShoppingCart />
@@ -371,8 +363,9 @@ function ClientDashboard() {
                   </div>
                   <h3>{user.name}</h3>
                   <p>{user.email}</p>
+                  <span className="account-status">Client account</span>
                   <label className="account-image-upload">
-                    Set Image
+                    <FiCamera /> Change photo
                     <input type="file" accept="image/*" onChange={handleProfileImageChange} />
                   </label>
                 </aside>
@@ -380,46 +373,54 @@ function ClientDashboard() {
                 <section className="client-profile-panel">
                   <div className="profile-panel-head">
                     <div>
-                      <p className="client-kicker">Account Profile</p>
-                      <h2>{user.name}</h2>
-                      <span>{user.email}</span>
+                      <p className="client-kicker">Account</p>
+                      <h2>Profile details</h2>
+                      <span>Manage your personal information and delivery address.</span>
                     </div>
-                    <button type="button" onClick={() => setIsEditing((value) => !value)}>
+                    <button className={isEditing ? "is-cancel" : ""} type="button" onClick={() => setIsEditing((value) => !value)}>
                       <FiEdit3 /> {isEditing ? "Cancel" : "Edit"}
                     </button>
                   </div>
 
                   <form className="client-profile-form" onSubmit={saveProfile}>
-                    <label>
-                      <span>Name</span>
-                      <input name="name" value={profileForm.name} onChange={handleProfileChange} disabled={!isEditing} />
-                    </label>
-                    <label>
-                      <span>Phone</span>
-                      <input name="phone" value={profileForm.phone} onChange={handleProfileChange} disabled={!isEditing} />
-                    </label>
-                    <label>
-                      <span>Date of birth</span>
-                      <input name="dob" type="date" value={profileForm.dob} onChange={handleProfileChange} disabled={!isEditing} />
-                    </label>
-                    <label>
-                      <span>Street</span>
-                      <input name="street" value={profileForm.street} onChange={handleProfileChange} disabled={!isEditing} />
-                    </label>
-                    <div className="profile-form-grid">
+                    <fieldset className="profile-field-group">
+                      <legend>Personal information</legend>
+                      <div className="profile-form-grid">
+                        <label>
+                          <span>Name</span>
+                          <input name="name" value={profileForm.name} onChange={handleProfileChange} disabled={!isEditing} />
+                        </label>
+                        <label>
+                          <span>Phone</span>
+                          <input name="phone" value={profileForm.phone} onChange={handleProfileChange} disabled={!isEditing} />
+                        </label>
+                      </div>
                       <label>
-                        <span>City</span>
-                        <input name="city" value={profileForm.city} onChange={handleProfileChange} disabled={!isEditing} />
+                        <span>Date of birth</span>
+                        <input name="dob" type="date" value={profileForm.dob} onChange={handleProfileChange} disabled={!isEditing} />
                       </label>
+                    </fieldset>
+                    <fieldset className="profile-field-group">
+                      <legend>Delivery address</legend>
                       <label>
-                        <span>State</span>
-                        <input name="state" value={profileForm.state} onChange={handleProfileChange} disabled={!isEditing} />
+                        <span>Street</span>
+                        <input name="street" value={profileForm.street} onChange={handleProfileChange} disabled={!isEditing} />
                       </label>
-                    </div>
-                    <label>
-                      <span>Pincode</span>
-                      <input name="pincode" value={profileForm.pincode} onChange={handleProfileChange} disabled={!isEditing} />
-                    </label>
+                      <div className="profile-form-grid">
+                        <label>
+                          <span>City</span>
+                          <input name="city" value={profileForm.city} onChange={handleProfileChange} disabled={!isEditing} />
+                        </label>
+                        <label>
+                          <span>State</span>
+                          <input name="state" value={profileForm.state} onChange={handleProfileChange} disabled={!isEditing} />
+                        </label>
+                        <label>
+                          <span>Pincode</span>
+                          <input name="pincode" value={profileForm.pincode} onChange={handleProfileChange} disabled={!isEditing} />
+                        </label>
+                      </div>
+                    </fieldset>
 
                     {isEditing ? (
                       <button className="profile-save-btn" type="submit" disabled={isSaving}>
@@ -440,9 +441,6 @@ function ClientDashboard() {
                     <h2>Cart Items</h2>
                     <span>{cartCount} item{cartCount === 1 ? "" : "s"} selected</span>
                   </div>
-                  <button type="button" className="client-primary-action" onClick={() => navigate("/cart")}>
-                    Open Cart
-                  </button>
                 </div>
 
                 {cartItems.length === 0 ? (
@@ -457,7 +455,12 @@ function ClientDashboard() {
                       const imageUrl = getFoodImageUrl(food.image, cartImg);
 
                       return (
-                        <article className="dashboard-cart-card" key={item._id}>
+                        <button
+                          type="button"
+                          className="dashboard-cart-card"
+                          key={item._id}
+                          onClick={() => navigate("/cart")}
+                        >
                           <img
                             src={imageUrl}
                             alt={food.name || "Cart item"}
@@ -471,7 +474,7 @@ function ClientDashboard() {
                             <span>Qty: {item.quantity || 1}</span>
                           </div>
                           <strong>Rs. {Number(food.price || 0) * Number(item.quantity || 1)}</strong>
-                        </article>
+                        </button>
                       );
                     })}
                   </div>
