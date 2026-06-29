@@ -191,6 +191,7 @@ export const updateFood = async (req, res) => {
       ownerEmail,
       hotelName,
       location,
+      isAvailable,
     } = req.body;
 
     if (!name || !price) {
@@ -211,6 +212,10 @@ export const updateFood = async (req, res) => {
       location: location || "",
     };
 
+    if (isAvailable !== undefined) {
+      updateData.isAvailable = isAvailable === true || isAvailable === "true";
+    }
+
     if (req.file) {
       updateData.image = await uploadFoodImage(req.file);
     }
@@ -225,6 +230,35 @@ export const updateFood = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error updating food" });
+  }
+};
+
+export const updateFoodAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isAvailable } = req.body;
+
+    if (typeof isAvailable !== "boolean") {
+      return res.status(400).json({ message: "A valid availability status is required" });
+    }
+
+    const food = await Food.findByIdAndUpdate(
+      id,
+      { isAvailable },
+      { new: true, runValidators: true }
+    );
+
+    if (!food) {
+      return res.status(404).json({ message: "Food not found" });
+    }
+
+    res.status(200).json({
+      message: isAvailable ? "Food is open for orders" : "Food marked as not available",
+      food,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error updating food availability" });
   }
 };
 

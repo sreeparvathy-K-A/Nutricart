@@ -191,6 +191,48 @@
   white-space: nowrap;
 }
 
+.food-availability-control {
+  display: grid;
+  gap: 7px;
+  min-width: 126px;
+}
+
+.food-availability-control span {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.food-availability-control span.available {
+  background: #e2f3e8;
+  color: #17633f;
+}
+
+.food-availability-control span.sold-out {
+  background: #fbe5e1;
+  color: #9a3f34;
+}
+
+.food-availability-control button {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #315f4b;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.food-availability-control button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
 .food-card-actions {
   display: flex;
   gap: 12px;

@@ -6,8 +6,7 @@ import "../CSS-pages/OwnerDashboard.css";
 import "../CSS-pages/MyFood.css";
 import menuImg from "../assets/images/menuimg.jpg";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
 const emptyForm = {
   name: "",
@@ -76,6 +75,7 @@ function MyFood() {
   const [editingId, setEditingId] = useState("");
   const [editForm, setEditForm] = useState(emptyForm);
   const [newImage, setNewImage] = useState(null);
+  const [updatingAvailabilityId, setUpdatingAvailabilityId] = useState("");
 
   const storedUser = useMemo(() => {
     try {
@@ -192,6 +192,66 @@ function MyFood() {
     }
   };
 
+  const handleAvailabilityChange = async (food) => {
+    const nextAvailability = food.isAvailable === false;
+
+    try {
+      setUpdatingAvailabilityId(food._id);
+      let response;
+
+      try {
+        response = await axios.patch(
+          `${API_BASE_URL}/api/foods/availability/${food._id}`,
+          { isAvailable: nextAvailability }
+        );
+      } catch (availabilityError) {
+        if (![404, 405].includes(availabilityError.response?.status)) {
+          throw availabilityError;
+        }
+
+        const payload = new FormData();
+        [
+          "name",
+          "description",
+          "price",
+          "category",
+          "calories",
+          "protein",
+          "rating",
+        ].forEach((key) => payload.append(key, food[key] ?? ""));
+        payload.append("ownerId", ownerId);
+        payload.append("ownerEmail", ownerEmail);
+        payload.append("hotelName", food.hotelName || hotelName || ownerName);
+        payload.append("location", food.location || ownerLocation);
+        payload.append("isAvailable", String(nextAvailability));
+
+        response = await axios.put(
+          `${API_BASE_URL}/api/foods/update/${food._id}`,
+          payload
+        );
+      }
+
+      const updatedFood = response.data?.food;
+
+      if (!updatedFood || updatedFood.isAvailable !== nextAvailability) {
+        throw new Error("The hosted backend needs to be redeployed before order status can be changed.");
+      }
+
+      setFoods((prev) =>
+        prev.map((item) => (item._id === food._id ? updatedFood : item))
+      );
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Unable to update order status"
+      );
+    } finally {
+      setUpdatingAvailabilityId("");
+    }
+  };
+
   const handleUpdate = async (foodId) => {
     if (!editForm.name || !editForm.price) {
       alert("Name and price are required");
@@ -245,7 +305,7 @@ function MyFood() {
             <p className="hero-kicker">My foods</p>
             <h1>Manage your food list</h1>
             <p>
-              View everything you have added, update details anytime, and remove old menu items.
+              Update item details and quickly control whether each dish is open for orders.
             </p>
           </div>
         </section>
@@ -287,6 +347,7 @@ function MyFood() {
                     <th>Calories</th>
                     <th>Protein</th>
                     <th>Rating</th>
+                    <th>Order Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -325,6 +386,24 @@ function MyFood() {
                           <td>{food.protein || 0} g</td>
                           <td>{food.rating || 0}</td>
                           <td>
+                            <div className="food-availability-control">
+                              <span className={food.isAvailable === false ? "sold-out" : "available"}>
+                                {food.isAvailable === false ? "Not Available" : "Open for Orders"}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleAvailabilityChange(food)}
+                                disabled={updatingAvailabilityId === food._id}
+                              >
+                                {updatingAvailabilityId === food._id
+                                  ? "Updating..."
+                                  : food.isAvailable === false
+                                    ? "Open for Orders"
+                                    : "Mark Not Available"}
+                              </button>
+                            </div>
+                          </td>
+                          <td>
                             <div className="food-table-actions">
                               <button type="button" className="primary" onClick={() => startEdit(food)}>
                                 Edit
@@ -342,7 +421,7 @@ function MyFood() {
 
                         {isEditing ? (
                           <tr className="food-edit-row">
-                            <td colSpan="8">
+                            <td colSpan="9">
                               <div className="food-edit-form food-edit-form-table">
                         <input
                           name="name"

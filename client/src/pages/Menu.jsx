@@ -5,8 +5,7 @@ import { FaArrowLeft, FaCartPlus, FaLocationDot, FaMagnifyingGlass, FaStar, FaXm
 import "../CSS-pages/Menu.css";
 import menuImg from "../assets/images/menuimg.jpg";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
 const getFoodImageUrl = (image) => {
   if (!image) return menuImg;
@@ -266,7 +265,7 @@ function Menu() {
                     }}
                   />
                   <span className={`availability-badge ${isAvailable ? "live" : "off"}`}>
-                    {isAvailable ? "Available" : "Unavailable"}
+                    {isAvailable ? "Open for Orders" : "Not Available"}
                   </span>
                 </div>
 
@@ -319,7 +318,7 @@ function Menu() {
                         onClick={() => handleAddToCart(item._id)}
                         disabled={!isAvailable}
                       >
-                        {isAvailable ? <><FaCartPlus /> Add</> : "Unavailable"}
+                        {isAvailable ? <><FaCartPlus /> Add</> : "Not Available"}
                       </button>
                     </div>
                   </div>
@@ -372,7 +371,7 @@ function Menu() {
                 onClick={() => handleAddToCart(selectedFood._id)}
                 disabled={selectedFood.isAvailable === false}
               >
-                <FaCartPlus /> {selectedFood.isAvailable === false ? "Unavailable" : "Add to cart"}
+                <FaCartPlus /> {selectedFood.isAvailable === false ? "Not Available" : "Add to cart"}
               </button>
             </div>
           </section>

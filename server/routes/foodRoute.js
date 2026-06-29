@@ -42,6 +42,7 @@ import {
   getFoodsByOwner,
   removeFood,
   updateFood,
+  updateFoodAvailability,
 } from "../controllers/foodController.js";
 
 const router = express.Router();
@@ -59,6 +60,9 @@ router.get("/owner/:ownerName", getFoodsByOwner);
 
 // ✏️ UPDATE FOOD
 router.put("/update/:id", upload.single("image"), updateFood);
+
+// UPDATE AVAILABILITY
+router.patch("/availability/:id", updateFoodAvailability);
 
 // 🗑️ DELETE FOOD
 router.delete("/delete/:id", removeFood);
