@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import cloudinary from "../config/cloudinary.js";
 import Owner from "../models/ownerModel.js";
 
-const uploadOwnerImage = async (file, folderName) => {
+const uploadOwnerImage = async (file, folderName, resourceType = "image") => {
   if (
     !process.env.CLOUDINARY_CLOUD_NAME ||
     !process.env.CLOUDINARY_API_KEY ||
@@ -15,7 +15,7 @@ const uploadOwnerImage = async (file, folderName) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: `nutricart/owners/${folderName}`,
-        resource_type: "image",
+        resource_type: resourceType,
       },
       (error, result) => {
         if (error) {
@@ -44,6 +44,9 @@ export const registerOwner = async (req, res) => {
       state,
       pincode,
       fssaiNumber,
+      restaurantAddress,
+      restaurantType,
+      deliveryRadius,
     } = req.body;
 
     const existing = await Owner.findOne({ email });
@@ -52,21 +55,19 @@ export const registerOwner = async (req, res) => {
     }
 
     const ownerPhotoFile = req.files?.ownerPhoto?.[0];
-    const shopImageFile = req.files?.shopImage?.[0];
     const licenseImageFile = req.files?.licenseImage?.[0];
 
-    if (!ownerPhotoFile || !shopImageFile || !licenseImageFile) {
+    if (!ownerPhotoFile || !licenseImageFile) {
       return res.status(400).json({
-        message: "Owner photo, shop image, and license image are required",
+        message: "Owner photo and FSSAI license document are required",
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [ownerPhoto, shopImage, licenseImage] = await Promise.all([
+    const [ownerPhoto, licenseImage] = await Promise.all([
       uploadOwnerImage(ownerPhotoFile, "photos"),
-      uploadOwnerImage(shopImageFile, "shops"),
-      uploadOwnerImage(licenseImageFile, "licenses"),
+      uploadOwnerImage(licenseImageFile, "licenses", "auto"),
     ]);
 
     const owner = new Owner({
@@ -75,13 +76,13 @@ export const registerOwner = async (req, res) => {
       email,
       phone,
       password: hashedPassword,
-      street,
+      street: restaurantAddress || street,
       city,
-      state,
-      pincode,
       fssaiNumber,
+      restaurantAddress: restaurantAddress || street,
+      restaurantType,
+      deliveryRadius,
       ownerPhoto,
-      shopImage,
       licenseImage,
     });
 

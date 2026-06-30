@@ -129,14 +129,6 @@ function Login({ mode = "" }) {
         ? "Use your approved delivery account to view assigned orders and update status."
         : "Use your customer account to manage your cart, checkout, and order history.";
 
-  const statItems = isAdminLogin
-    ? ["Approvals", "Orders", "Analytics"]
-    : isOwnerLogin
-      ? ["Menu", "Orders", "Earnings"]
-      : isDeliveryLogin
-        ? ["Assigned", "Picked", "Delivered"]
-        : ["Browse", "Cart", "Orders"];
-
   const pageClassName = [
     "auth-page",
     "login-page",
@@ -162,11 +154,6 @@ function Login({ mode = "" }) {
           <div>
             <h1>{headline}</h1>
             <p className="auth-copy">{description}</p>
-          </div>
-          <div className="auth-stat-row">
-            {statItems.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
           </div>
         </section>
 
@@ -208,13 +195,13 @@ function Login({ mode = "" }) {
           <div className="auth-footer-links">
             {isOwnerLogin ? (
               <>
-                <span>Need restaurant access?</span>
-                <Link to="/restaurant/register-request">Become a Restaurant Partner</Link>
+                <span>Don't have an account?</span>
+                <Link to="/restaurant/register-request">Create Account</Link>
               </>
             ) : isDeliveryLogin ? (
               <>
-                <span>Need delivery access?</span>
-                <Link to="/delivery/register-request">Become a Delivery Partner</Link>
+                <span>Don't have an account?</span>
+                <Link to="/delivery/register-request">Create Account</Link>
               </>
             ) : isAdminLogin ? (
               <>
@@ -224,7 +211,7 @@ function Login({ mode = "" }) {
             ) : (
               <>
                 <span>Don't have an account?</span>
-                <Link to="/register">Register</Link>
+                <Link to="/register">Create Account</Link>
               </>
             )}
           </div>

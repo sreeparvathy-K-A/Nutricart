@@ -6,6 +6,12 @@ import ownerBg from "../assets/images/OwnerReg.jpg";
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
 
+const createLegacyShopPlaceholder = () => {
+  const binary = atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=");
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  return new Blob([bytes], { type: "image/png" });
+};
+
 function OwnerReg() {
   const [form, setForm] = useState({
     businessName: "",
@@ -13,18 +19,20 @@ function OwnerReg() {
     email: "",
     phone: "",
     password: "",
-    street: "",
+    confirmPassword: "",
+    restaurantAddress: "",
     city: "",
-    state: "",
-    pincode: "",
+    restaurantType: "Both",
+    deliveryRadius: "",
     fssaiNumber: "",
   });
   const [files, setFiles] = useState({
     ownerPhoto: null,
-    shopImage: null,
     licenseImage: null,
   });
+  const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -39,13 +47,13 @@ function OwnerReg() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!/^[A-Za-z ]{2,}$/.test(form.ownerName)) {
-      alert("Owner name must be at least 2 letters");
+    if (form.ownerName.trim().length < 2) {
+      alert("Owner name must be at least 2 characters");
       return;
     }
 
-    if (!/^[A-Za-z ]{2,}$/.test(form.businessName)) {
-      alert("Hotel name must be at least 2 letters");
+    if (form.businessName.trim().length < 2) {
+      alert("Restaurant name must be at least 2 characters");
       return;
     }
 
@@ -54,13 +62,14 @@ function OwnerReg() {
       return;
     }
 
-    if (!/^[0-9]{6}$/.test(form.pincode)) {
-      alert("Pincode must be exactly 6 digits");
+    if (form.password.length < 6) {
+      alert("Password must be at least 6 characters");
       return;
     }
 
-    if (form.password.length < 6) {
-      alert("Password must be at least 6 characters");
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match");
+      setStep(1);
       return;
     }
 
@@ -69,13 +78,8 @@ function OwnerReg() {
       return;
     }
 
-    if (!files.ownerPhoto) {
-      alert("Owner photo required");
-      return;
-    }
-
-    if (!files.shopImage) {
-      alert("Shop image required");
+    if (!form.restaurantAddress || !form.city || !form.deliveryRadius) {
+      alert("Complete all restaurant details");
       return;
     }
 
@@ -84,18 +88,31 @@ function OwnerReg() {
       return;
     }
 
+    if (!files.ownerPhoto) {
+      alert("Owner photo required");
+      setStep(1);
+      return;
+    }
+
     const formData = new FormData();
 
     Object.keys(form).forEach((key) => {
-      formData.append(key, form[key]);
+      if (key !== "confirmPassword") formData.append(key, form[key]);
     });
 
-    formData.append("ownerPhoto", files.ownerPhoto);
-    formData.append("shopImage", files.shopImage);
+    formData.append("street", form.restaurantAddress);
+    if (files.ownerPhoto) {
+      formData.append("ownerPhoto", files.ownerPhoto);
+      // Backward compatibility for the currently deployed API, which still
+      // expects a shopImage. Use a tiny placeholder instead of uploading the
+      // full owner photo twice.
+      formData.append("shopImage", createLegacyShopPlaceholder(), "shop-placeholder.png");
+    }
     formData.append("licenseImage", files.licenseImage);
 
     try {
       setIsSubmitting(true);
+      setSubmitMessage("Uploading documents and creating your account...");
 
       const response = await fetch(`${API_BASE_URL}/api/registerOwner`, {
         method: "POST",
@@ -117,16 +134,16 @@ function OwnerReg() {
         email: "",
         phone: "",
         password: "",
-        street: "",
+        confirmPassword: "",
+        restaurantAddress: "",
         city: "",
-        state: "",
-        pincode: "",
+        restaurantType: "Both",
+        deliveryRadius: "",
         fssaiNumber: "",
       });
 
       setFiles({
         ownerPhoto: null,
-        shopImage: null,
         licenseImage: null,
       });
 
@@ -136,6 +153,7 @@ function OwnerReg() {
       alert("Server error");
     } finally {
       setIsSubmitting(false);
+      setSubmitMessage("");
     }
   };
 
@@ -154,172 +172,33 @@ function OwnerReg() {
           <form onSubmit={handleSubmit}>
             <div className="form-grid">
               <div className="owner-section-title full">
-                <span>Business Details</span>
+                <span>Step {step} of 2 — {step === 1 ? "Owner Details" : "Restaurant Details"}</span>
               </div>
-
-              <div className="owner-field">
-                <label htmlFor="businessName">Hotel Name</label>
-                <input
-                  id="businessName"
-                  name="businessName"
-                  placeholder="Enter hotel name"
-                  value={form.businessName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerName">Owner Name</label>
-                <input
-                  id="ownerName"
-                  name="ownerName"
-                  placeholder="Enter owner name"
-                  value={form.ownerName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerEmail">Email</label>
-                <input
-                  id="ownerEmail"
-                  type="email"
-                  name="email"
-                  placeholder="business@example.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerPhone">Phone</label>
-                <input
-                  id="ownerPhone"
-                  name="phone"
-                  placeholder="10 digit phone"
-                  value={form.phone}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    setForm({ ...form, phone: value });
-                  }}
-                  maxLength="10"
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerPassword">Password</label>
-                <input
-                  id="ownerPassword"
-                  type="password"
-                  name="password"
-                  placeholder="Create a password"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="fssaiNumber">FSSAI Number</label>
-                <input
-                  id="fssaiNumber"
-                  name="fssaiNumber"
-                  placeholder="Enter FSSAI number"
-                  value={form.fssaiNumber}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-section-title full">
-                <span>Location</span>
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerStreet">Street Address</label>
-                <input
-                  id="ownerStreet"
-                  name="street"
-                  placeholder="Street and landmark"
-                  value={form.street}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerCity">City</label>
-                <input
-                  id="ownerCity"
-                  name="city"
-                  placeholder="City"
-                  value={form.city}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field">
-                <label htmlFor="ownerState">State</label>
-                <input
-                  id="ownerState"
-                  name="state"
-                  placeholder="State"
-                  value={form.state}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="owner-field full">
-                <label htmlFor="ownerPincode">Pincode</label>
-                <input
-                  id="ownerPincode"
-                  name="pincode"
-                  placeholder="6 digit pincode"
-                  value={form.pincode}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    setForm({ ...form, pincode: value });
-                  }}
-                  maxLength="6"
-                  required
-                />
-              </div>
-
-              <div className="owner-section-title full">
-                <span>Documents</span>
-              </div>
-
-              <div className="owner-field file-field">
-                <label htmlFor="ownerPhoto">Owner Photo</label>
-                <input id="ownerPhoto" type="file" name="ownerPhoto" accept="image/*" onChange={handleFileChange} />
-              </div>
-
-              <div className="owner-field file-field">
-                <label htmlFor="shopImage">Shop Image</label>
-                <input id="shopImage" type="file" name="shopImage" accept="image/*" onChange={handleFileChange} />
-              </div>
-
-              <div className="owner-field full file-field">
-                <label htmlFor="licenseImage">License Image</label>
-                <input
-                  id="licenseImage"
-                  type="file"
-                  name="licenseImage"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </div>
+              {step === 1 ? <>
+                <div className="owner-field"><label>Full Name *</label><input name="ownerName" value={form.ownerName} onChange={handleChange} required /></div>
+                <div className="owner-field"><label>Email Address *</label><input type="email" name="email" value={form.email} onChange={handleChange} required /></div>
+                <div className="owner-field"><label>Mobile Number *</label><input name="phone" maxLength="10" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })} required /></div>
+                <div className="owner-field"><label>Password *</label><input type="password" name="password" value={form.password} onChange={handleChange} required /></div>
+                <div className="owner-field"><label>Confirm Password *</label><input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required /></div>
+                <div className="owner-field file-field"><label>Owner Photo *</label><input type="file" name="ownerPhoto" accept="image/*" onChange={handleFileChange} required /></div>
+              </> : <>
+                <div className="owner-field"><label>Restaurant Name *</label><input name="businessName" value={form.businessName} onChange={handleChange} required /></div>
+                <div className="owner-field"><label>City *</label><input name="city" value={form.city} onChange={handleChange} required /></div>
+                <div className="owner-field full"><label>Restaurant Address *</label><input name="restaurantAddress" value={form.restaurantAddress} onChange={handleChange} required /></div>
+                <div className="owner-field"><label>Restaurant Type *</label><select name="restaurantType" value={form.restaurantType} onChange={handleChange}><option>Veg</option><option>Non-Veg</option><option>Both</option></select></div>
+                <div className="owner-field"><label>Delivery Radius *</label><input name="deliveryRadius" placeholder="e.g., 5 km" value={form.deliveryRadius} onChange={handleChange} required /></div>
+                <div className="owner-field"><label>FSSAI License Number *</label><input name="fssaiNumber" value={form.fssaiNumber} onChange={handleChange} required /></div>
+                <div className="owner-field file-field"><label>FSSAI License Document *</label><input type="file" name="licenseImage" accept="image/*,.pdf,application/pdf" onChange={handleFileChange} required /></div>
+              </>}
             </div>
-
-            <button type="submit" className="full owner-primary-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Register"}
-            </button>
+            <div className="owner-step-actions">
+              {step === 2 && <button type="button" className="owner-secondary-btn" onClick={() => setStep(1)}>Back</button>}
+              {step === 1 ? <button type="button" className="owner-primary-btn" onClick={() => {
+                if (!form.ownerName || !form.email || form.phone.length !== 10 || form.password.length < 6 || form.password !== form.confirmPassword || !files.ownerPhoto) return alert("Complete the owner details, upload an owner photo, and ensure passwords match");
+                setStep(2);
+              }}>Next</button> : <button type="submit" className="owner-primary-btn" disabled={isSubmitting}>{isSubmitting ? "Uploading..." : "Register"}</button>}
+            </div>
+            {submitMessage ? <p className="owner-submit-message" role="status">{submitMessage}</p> : null}
           </form>
 
           <div className="ownerreg-footer">

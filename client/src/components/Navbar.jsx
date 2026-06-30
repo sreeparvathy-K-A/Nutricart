@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaShoppingCart, FaSignInAlt, FaUserCircle, FaUserPlus } from "react-icons/fa";
+import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import "../CSS-pages/Navbar.css";
 import logoImg from "../assets/images/logo.png";
 
 function Navbar() {
-  const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
@@ -46,7 +45,6 @@ function Navbar() {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
         setProfileOpen(false);
       }
     };
@@ -83,32 +81,9 @@ function Navbar() {
           )}
 
           {showGuestNav ? (
-            <div className="dropdown auth-dropdown">
-              <button
-                type="button"
-                className="account-icon-btn"
-                onClick={() => setOpen(!open)}
-                aria-label="Open login and registration menu"
-                aria-expanded={open}
-              >
+            <Link className="account-icon-btn" to="/login" aria-label="Open client login">
                 <FaUserCircle />
-              </button>
-
-              <ul className={`dropdown-menu auth-menu ${open ? "show" : ""}`}>
-                <li>
-                  <Link to="/login" onClick={() => setOpen(false)}>
-                    <FaSignInAlt />
-                    Login
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/register" onClick={() => setOpen(false)}>
-                    <FaUserPlus />
-                    Register
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            </Link>
           ) : role !== "owner" ? (
             <div className="dropdown profile-dropdown">
               <button

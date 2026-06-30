@@ -2,7 +2,7 @@
   position: relative;
   min-height: calc(100vh - 72px);
   margin-top: 72px;
-  padding: 28px 16px;
+  padding: 22px 16px;
   background:
     radial-gradient(circle at top left, rgba(193, 210, 96, 0.22), transparent 28%),
     linear-gradient(135deg, #f3f7e9 0%, #e7efd1 52%, #fbfcf4 100%);
@@ -25,7 +25,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 760px;
+  max-width: 680px;
   margin: 0 auto;
   display: block;
   border-radius: 0;
@@ -136,7 +136,7 @@
 
 .owner-form {
   width: 100%;
-  padding: 24px 26px;
+  padding: 20px 22px;
   border: 1px solid rgba(24, 77, 67, 0.1);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.97);
@@ -146,7 +146,7 @@
 .ownerreg-head h2 {
   margin: 0;
   color: #163f35;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
 }
 
 .ownerreg-head p {
@@ -158,14 +158,14 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 16px;
-  margin-top: 16px;
+  gap: 11px 14px;
+  margin-top: 13px;
   align-items: end;
 }
 
 .owner-section-title {
-  margin: 8px 0 0;
-  padding-top: 12px;
+  margin: 5px 0 0;
+  padding-top: 9px;
   border-top: 1px solid rgba(24, 77, 67, 0.1);
 }
 
@@ -195,9 +195,10 @@
   color: #1d443c;
 }
 
-.owner-field input {
+.owner-field input,
+.owner-field select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 11px;
   border-radius: 8px;
   border: 1px solid rgba(24, 77, 67, 0.15);
   background: rgba(248, 251, 249, 0.98);
@@ -206,7 +207,7 @@
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  min-height: 42px;
+  min-height: 38px;
 }
 
 .owner-field input:focus {
@@ -224,13 +225,13 @@
   border-style: dashed;
   background: #f6fbf5;
   cursor: pointer;
-  min-height: 46px;
+  min-height: 42px;
 }
 
 .owner-primary-btn {
   width: 100%;
-  margin-top: 12px;
-  padding: 11px 14px;
+  margin-top: 10px;
+  padding: 10px 14px;
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #4f7e2f, #7bb148);
@@ -249,6 +250,37 @@
 .owner-primary-btn:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+
+.owner-step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.owner-step-actions .owner-primary-btn {
+  width: auto;
+  min-width: 110px;
+  margin-top: 0;
+}
+
+.owner-secondary-btn {
+  min-width: 100px;
+  padding: 10px 14px;
+  border: 1px solid #4f7e2f;
+  border-radius: 8px;
+  background: #fff;
+  color: #4f7e2f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.owner-submit-message {
+  margin: 10px 0 0;
+  text-align: right;
+  color: #4f6f64;
+  font-size: 0.8rem;
 }
 
 .ownerreg-footer {

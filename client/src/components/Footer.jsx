@@ -33,8 +33,8 @@ function Footer() {
 
         <div className="footer-column">
           <h3>Partners</h3>
-          <Link to="/restaurant/register-request">Become a Restaurant Partner</Link>
-          <Link to="/delivery/register-request">Become a Delivery Partner</Link>
+          <Link to="/restaurant/login">Become a Restaurant Partner</Link>
+          <Link to="/delivery/login">Become a Delivery Partner</Link>
         </div>
 
         <div className="footer-column">

@@ -377,9 +377,6 @@ function AdminDashboard() {
     return `${API_BASE_URL}/uploads/${filePath.replace(/^\/+/, "")}`;
   };
 
-  const ownerAddress = (owner) =>
-    [owner.street, owner.city, owner.state, owner.pincode].filter(Boolean).join(", ");
-
   const renderDetailField = (label, value) => (
     <div className="admin-detail-field">
       <span>{label}</span>
@@ -394,8 +391,7 @@ function AdminDashboard() {
   const renderOwnerImages = (owner) => {
     const images = [
       { label: "Restaurant Owner Photo", value: owner.ownerPhoto },
-      { label: "Shop Image", value: owner.shopImage },
-      { label: "License Image", value: owner.licenseImage },
+      { label: "FSSAI License Document", value: owner.licenseImage },
     ];
 
     return (
@@ -727,23 +723,31 @@ function AdminDashboard() {
 
             {selectedUser.role === "owner" ? (
               <>
+                <div className="admin-owner-doc-section">
+                  <h3>Owner Details</h3>
+                </div>
                 <div className="admin-detail-grid">
                   {renderDetailField("Record No", `#${selectedUser._id?.slice(-6).toUpperCase()}`)}
-                  {renderDetailField("Hotel Name", selectedUser.businessName)}
-                  {renderDetailField("Restaurant Owner", selectedUser.ownerName)}
-                  {renderDetailField("Email", selectedUser.email)}
-                  {renderDetailField("Phone", selectedUser.phone)}
-                  {renderDetailField("FSSAI Number", selectedUser.fssaiNumber)}
-                  {renderDetailField("Street", selectedUser.street)}
-                  {renderDetailField("City", selectedUser.city)}
-                  {renderDetailField("State", selectedUser.state)}
-                  {renderDetailField("Pincode", selectedUser.pincode)}
-                  {renderDetailField("Full Address", ownerAddress(selectedUser))}
+                  {renderDetailField("Full Name", selectedUser.ownerName)}
+                  {renderDetailField("Email Address", selectedUser.email)}
+                  {renderDetailField("Mobile Number", selectedUser.phone)}
                   {renderDetailField("Registered", formatDate(selectedUser.createdAt))}
                 </div>
 
                 <div className="admin-owner-doc-section">
-                  <h3>Uploaded Images</h3>
+                  <h3>Restaurant Details</h3>
+                </div>
+                <div className="admin-detail-grid">
+                  {renderDetailField("Restaurant Name", selectedUser.businessName)}
+                  {renderDetailField("Restaurant Address", selectedUser.restaurantAddress || selectedUser.street)}
+                  {renderDetailField("City", selectedUser.city)}
+                  {renderDetailField("Restaurant Type", selectedUser.restaurantType)}
+                  {renderDetailField("Delivery Radius", selectedUser.deliveryRadius)}
+                  {renderDetailField("FSSAI License Number", selectedUser.fssaiNumber)}
+                </div>
+
+                <div className="admin-owner-doc-section">
+                  <h3>Uploaded Documents</h3>
                   {renderOwnerImages(selectedUser)}
                 </div>
               </>

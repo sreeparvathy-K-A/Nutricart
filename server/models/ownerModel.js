@@ -15,6 +15,9 @@ const ownerSchema = new mongoose.Schema(
     city: String,
     state: String,
     pincode: String,
+    restaurantAddress: String,
+    restaurantType: { type: String, enum: ["Veg", "Non-Veg", "Both"], default: "Both" },
+    deliveryRadius: String,
 
     // ✅ NEW (Healthy platform)
     fssaiNumber: { type: String, required: true },
