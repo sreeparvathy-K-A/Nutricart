@@ -4,8 +4,10 @@ import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 import "../CSS-pages/AddFood.css";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
+// Use the same API origin as the menu and owner food pages. In production the
+// Vercel rewrite serves /api, while REACT_APP_API_BASE_URL can still point a
+// standalone frontend at an external backend.
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
 const initialFormState = {
   name: "",
