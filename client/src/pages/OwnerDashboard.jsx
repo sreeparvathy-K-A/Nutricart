@@ -5,7 +5,8 @@ import { FaClipboardList, FaUtensils } from "react-icons/fa";
 import OwnerSidebar from "../components/OwnerSidebar";
 import "../CSS-pages/OwnerDashboard.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
 
 function OwnerDashboard() {
   const navigate = useNavigate();

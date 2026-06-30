@@ -6,7 +6,8 @@ import "../CSS-pages/OwnerDashboard.css";
 import "../CSS-pages/MyFood.css";
 import menuImg from "../assets/images/menuimg.jpg";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://nutricart-waly.onrender.com";
 
 const emptyForm = {
   name: "",
